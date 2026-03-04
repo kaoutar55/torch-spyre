@@ -1,27 +1,70 @@
 # Tensor Layouts
 
-In this document we discuss the rationale for Spyre tensor layouts, the
-specifics, and their relationship with PyTorch tensor layouts. This document
-complements the [Tiled Tensor RFC](https://github.com/torch-spyre/rfcs/blob/main/0047-TiledTensors/0047-TiledTensorsRFC.md)
-by describing the specific device memory layouts and related APIs used for Tensors in Torch-Spyre.
+Although tensors appear as multidimensional arrays, computer memory is inherently
+one-dimensional. A **tensor layout** defines how multidimensional tensor indices
+map to positions in linear memory.
+
+PyTorch tensors use _size_ and _stride_ vectors to describe this mapping. However,
+these are not sufficient to express the tiled layouts required by the Spyre
+architecture. Torch-Spyre therefore introduces Spyre tensor layouts, which extend
+the PyTorch representation with additional device-specific structure.
+
+This document complements the
+[Tiled Tensor RFC](https://github.com/torch-spyre/rfcs/blob/main/0047-TiledTensors/0047-TiledTensorsRFC.md)
+by describing the specific device memory layouts and related APIs used for tensors
+in Torch-Spyre.
+
+## Conceptual Overview
+
+```
+PyTorch tensor            Spyre tensor layout          Device memory
+(size + stride)    →    (device_size + dim_map)   →    (sticks in DDR)
+```
+
+PyTorch tensors describe logical tensor structure using size and stride vectors.
+Spyre tensor layouts extend this model with additional device dimensions that
+represent the tiling and padding required by the hardware.
 
 ## PyTorch Tensor Layouts
 
-A PyTorch tensor has an integer _rank_ also referred to as a number of
-dimensions. More precisely, the _dimensions_ of a PyTorch tensors are the
-integers in the range `range(rank)`.
+A PyTorch tensor is a multidimensional array stored in linear memory.
 
-A tensor layout consists of a _size_ vector with rank elements and a _stride_
-vector with rank elements. Elements of the size and stride vectors are often
-informally referred to as sizes and strides as a shorthand for per-dimension
-sizes and strides.
+### Rank and Dimensions
 
-The stride vector makes it possible to map a tuple of rank coordinates to an
-offset, hence to order the tensor elements in a 1d contiguous memory space.
+The _rank_ of a tensor is the number of dimensions it has. The _dimensions_ of a
+PyTorch tensor are indexed by integers in `range(rank)`.
+
+For example, a tensor with shape `(4, 6)` has rank 2, with dim 0 (rows) and
+dim 1 (columns).
+
+### Size and Stride
+
+The _size_ vector specifies the number of elements along each dimension. The
+_stride_ vector specifies how many memory positions we advance when stepping one
+element along a given dimension.
+
+For a tensor with shape `(4, 6)` stored in row-major order:
+
+```
+size   = [4, 6]
+stride = [6, 1]
+```
+
+This means:
+- Moving one column (dim 1) advances the memory offset by **1**
+- Moving one row (dim 0) advances the memory offset by **6** (one full row)
+
+### Mapping Tensor Coordinates to Memory
+
+The stride vector maps a tuple of tensor coordinates to a linear memory offset:
 
 ```
 offset = lambda coordinates : np.dot(coordinates, stride)
 ```
+
+The following example illustrates how this mapping works for a tensor with
+shape (4, 6) and stride (6, 1). Each cell shows the linear memory offset for
+that coordinate.
 
 :::{figure} ../_static/images/pytorch-tensor-concept.svg
 :alt: PyTorch tensor rank, size, and stride
@@ -39,12 +82,20 @@ A 2D PyTorch tensor with shape (4, 6) and stride (6, 1). Each cell shows its lin
 Host (CPU) memory layout of a 2D PyTorch tensor: elements are stored in row-major order, with rows of each colour placed consecutively in a flat 1D address space. *Source: [Tiled Tensor RFC](https://github.com/torch-spyre/torch-spyre/blob/main/RFCs/0047-TiledTensors/0047-TiledTensorsRFC.md).*
 :::
 
+In PyTorch, the combination of the size vector and stride vector fully determines
+how tensor elements are arranged in memory.
+
 ## Motivation for Spyre Tensor Layouts
 
-PyTorch tensors have a single stride per dimension, hence cannot represent tiled
-tensors. Because of this limitation we introduce Spyre tensor layouts with
-higher ranks than their PyTorch counterparts. Intuitively by breaking PyTorch
-dimensions into pieces, we can build tiles and tensors from these tiles.
+While PyTorch layouts are flexible enough to represent many memory arrangements,
+they have a key limitation: a PyTorch tensor has only one stride per dimension and
+therefore cannot directly represent tiled memory layouts, which are required for
+efficient execution on Spyre.
+
+To address this, Torch-Spyre introduces Spyre tensor layouts with higher ranks than
+their PyTorch counterparts. Intuitively, PyTorch tensor dimensions are split into
+smaller pieces to construct tiles. These tiles are then arranged into a higher-rank
+device tensor layout.
 
 While strides make it possible to express padding in PyTorch tensor layouts,
 because Spyre tensor layouts have more dimensions, we need more dimensions of
@@ -54,16 +105,30 @@ include padded sizes in a Spyre tensor layout. While we could work with strides
 instead, we find it easier to reason about padded sizes and order of dimensions
 separately rather than combining them into strides.
 
-A number of compute operations on Spyre produce _sparse_ tensors, i.e., tensors with a
-single element per 128-byte _stick_ of tensor data. In order to describe sparse
-tensor layouts we permit Spyre tensor layouts to optionally include a single
-synthetic dimension that does not correspond to any dimension of the PyTorch
-layout. This synthetic inner dimension associated with a size equal to the
-maximal number of elements per stick for the tensor data type will ensure that
-the sparse tensor has a single element of the corresponding PyTorch tensor per
-stick.
+PyTorch often removes dimensions of size 1 because they do not affect the memory
+layout. For instance, `(size=[512, 1, 256], stride=[256, 256, 1])` becomes
+`(size=[512, 256], stride=[256, 1])`. After careful consideration we concluded
+that dimensions of size 1 must not contribute to the Spyre layout of a tensor.
+For this reason, we say a PyTorch tensor layout is in _canonical form_ if it has
+no dimension of size 1 and canonicalize PyTorch tensor layouts before reasoning
+about them. To be clear, this does not preclude selecting a different layout on
+Spyre for a tensor of size `[512, 1]` vs. a tensor of size `[512]` but this will
+require explicitly specifying the desired Spyre layout as the default is the same
+for both.
+
+A number of operations on Spyre produce _sparse_ tensors, i.e., tensors with a
+single element per _stick_. A **stick** is a 128-byte aligned, 128-byte contiguous
+block of tensor elements in device memory. In order to describe sparse tensor
+layouts we permit Spyre tensor layouts to optionally include a single synthetic
+dimension that does not correspond to any dimension of the PyTorch layout. This
+synthetic inner dimension associated with a size equal to the maximal number of
+elements per stick for the tensor data type will ensure that the sparse tensor has
+a single element of the corresponding PyTorch tensor per stick.
 
 ## Spyre Tensor Layouts
+
+A Spyre tensor layout extends the PyTorch layout by introducing additional
+dimensions that represent tiling and padding required by the hardware.
 
 :::{figure} ../_static/images/tensor-logical-view.png
 :alt: Spyre tiled tensor logical view
@@ -185,7 +250,7 @@ Key access pattern properties:
 
 ## Default Layouts and Controlling Layouts
 
-Spyre tensors are created using two fundamental PyTorch APIs.  
+Spyre tensors are created using two fundamental PyTorch APIs.
 - The `to()` method is used to transfer all elements of an existing
    (host) tensor to a newly allocated device tensor; the result of `to`
    is the device tensor object.
@@ -226,7 +291,7 @@ You should see something like:
 SpyreTensorLayout(device_size=[100, 3, 5, 64], dim_map =[1, 2, 0, 2], device_dtype=DataFormats.SEN169_FP16)
 ```
 
-The 3-D tensor has a 4-D `device_size`.  
+The 3-D tensor has a 4-D `device_size`.
 A float16 is two bytes, therefore each stick contains 64 data values.
 The stick dimension of `150` has been padded to `192` and broken into two device dimensions of (`3` and `64`).
 
