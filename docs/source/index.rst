@@ -24,6 +24,7 @@ It enables standard PyTorch models to run on the Spyre device with full
    compiler/index
    runtime/index
    contributing/index
+   rfcs/index
 
 Indices and tables
 ------------------
