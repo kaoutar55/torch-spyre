@@ -23,6 +23,14 @@ offset, hence to order the tensor elements in a 1d contiguous memory space.
 offset = lambda coordinates : np.dot(coordinates, stride)
 ```
 
+:::{figure} ../_static/images/pytorch-tensor-concept.svg
+:alt: PyTorch tensor rank, size, and stride
+:width: 680px
+:align: center
+
+A 2D PyTorch tensor with shape (4, 6) and stride (6, 1). Each cell shows its linear memory offset. The stride vector maps multidimensional indices to a flat address: `offset(i, j) = i × stride[0] + j × stride[1]`. For element (1, 2): offset = 1×6 + 2×1 = 8 (highlighted). stride[0]=6 means stepping one row advances 6 positions in memory; stride[1]=1 means stepping one column advances 1 position.
+:::
+
 :::{figure} ../_static/images/tensor-host-layout.png
 :alt: PyTorch tensor host memory layout
 :width: 680px
