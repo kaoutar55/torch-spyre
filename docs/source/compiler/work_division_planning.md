@@ -83,7 +83,7 @@ The operation dimension ordering is:
 | pointwise 3D | `["mb", "x", "out"]` | `[1, 1, cores]` |
 | pointwise 4D | `["mb", "x", "y", "out"]` | `[1, 1, 1, cores]` |
 
-The reduction dimension (K / "in") has the lowest priority and is typically 1 (not split) unless other dimensions cannot utilize all available cores. The product of all splits equals the total number of cores used.
+The reduction dimension (K / `"in"`) has the lowest priority and is typically 1 (not split) unless other dimensions cannot utilize all available cores. The product of all splits equals the total number of cores used.
 
 For example, a matrix multiplication with 8 cores and M_split=4, K_split=1, N_split=2 would have:
 - `op_dim_splits = [4, 1, 2]`  — matching `["mb", "in", "out"]`
