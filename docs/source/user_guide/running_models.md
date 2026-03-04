@@ -24,11 +24,11 @@ output = compiled_model(x)
 
 ## Supported Operations
 
-Torch-Spyre supports a subset of PyTorch ATen operations. The supported
-set is determined by registered lowerings and decompositions in the
-front-end compiler. See the
-[Contributing Guide](../compiler/adding_operations.md) for how to
-add new operations.
+For the full list of supported operations, see
+[Supported Operations](supported_operations.md).
+
+To add support for a new operation, see
+[Adding Operations](../compiler/adding_operations.md).
 
 ## Configuration
 
