@@ -106,9 +106,14 @@ If your PR touches documentation, build and preview it locally before submitting
 ```bash
 pip install -r docs/requirements.txt
 python -m sphinx docs/source docs/build/html -W --keep-going
-open docs/build/html/index.html   # macOS
-xdg-open docs/build/html/index.html  # Linux
+python -m http.server 8080 --directory docs/build/html
 ```
+
+Then open `http://localhost:8080` in your browser.
+
+> **Note:** Do not open the HTML files directly from the filesystem (`file://`).
+> Browsers block CSS and JavaScript when loading local files, resulting in an
+> unstyled plain-text page. Always use the HTTP server above.
 
 The `-W` flag turns Sphinx warnings into errors — the same check CI runs.
 Fix any warnings before opening your PR.
