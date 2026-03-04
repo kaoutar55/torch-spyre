@@ -8,6 +8,63 @@ For the full contribution guidelines, see the
 [CONTRIBUTING.md](https://github.com/torch-spyre/torch-spyre/blob/main/CONTRIBUTING.md)
 file in the repository root.
 
+## Development Workflow
+
+Torch-Spyre uses a **fork-based PR model**. All contributions come through a
+personal fork rather than pushing branches directly to the upstream repository.
+
+### 1. Fork and clone
+
+Fork the repository on GitHub, then clone your fork locally:
+
+```bash
+git clone https://github.com/<your-username>/torch-spyre.git
+cd torch-spyre
+git remote add upstream https://github.com/torch-spyre/torch-spyre.git
+```
+
+### 2. Keep your fork in sync
+
+Before starting new work, sync your local `main` with upstream:
+
+```bash
+git fetch upstream
+git checkout main
+git merge upstream/main
+git push origin main
+```
+
+### 3. Create a branch
+
+Always branch off `main`:
+
+```bash
+git checkout -b my-feature-branch
+```
+
+### 4. Push to your fork and open a PR
+
+Push your branch to your fork (not upstream):
+
+```bash
+git push origin my-feature-branch
+```
+
+Then open a PR on GitHub from `<your-username>/torch-spyre:my-feature-branch`
+targeting `torch-spyre/torch-spyre:main`.
+
+### 5. After your PR is merged
+
+```bash
+git checkout main
+git fetch upstream
+git merge upstream/main
+git push origin main
+git branch -d my-feature-branch
+```
+
+---
+
 ## Before You Start
 
 * **Open an issue first** for large PRs so the team can align on the
@@ -41,6 +98,20 @@ file in the repository root.
   ```bash
   pip install -r requirements/dev.txt
   ```
+
+## Building the Docs Locally
+
+If your PR touches documentation, build and preview it locally before submitting:
+
+```bash
+pip install -r docs/requirements.txt
+python -m sphinx docs/source docs/build/html -W --keep-going
+open docs/build/html/index.html   # macOS
+xdg-open docs/build/html/index.html  # Linux
+```
+
+The `-W` flag turns Sphinx warnings into errors — the same check CI runs.
+Fix any warnings before opening your PR.
 
 ## How to Extend the Compiler
 
