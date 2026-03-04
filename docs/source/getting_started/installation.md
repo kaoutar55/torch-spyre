@@ -12,6 +12,10 @@ Building Torch-Spyre requires a development build of the IBM Spyre Software
 Stack. If you are within IBM, instructions can be found in the internal
 `#aiu-inductor` Slack channel.
 
+Torch-Spyre is an active research project. We are working on an access program
+for external contributors and research collaborators. Watch this repository for
+updates or open an issue to express interest.
+
 ## Verify the Installation
 
 Once installed, verify your setup with:
