@@ -53,7 +53,15 @@ Matrix multiplication computes C = A × B where A is M×K, B is K×N, and C is M
 - The K dimension (reduction dimension) has the lowest priority and is only split when M and N cannot utilize all cores
 - When K is split, each core computes a partial result that is accumulated by the backend
 
-**Example:** With 8 cores and output size 128×256, the planner might choose splits [4, 1, 2] (M=4, K=1, N=2), dividing rows into 4 parts and columns into 2 parts. Each core computes a 32×128 block of the output. If M and N were smaller, K might be split to utilize more cores.
+**Example:** With 8 cores and M=128, K=64, N=64, the planner chooses `op_dim_splits = [4, 1, 2]` — 4 row tiles and 2 column tiles. Each core computes a 32×32 block of the output while iterating over all 64 K-elements. If M and N were smaller, K might be split to utilize more cores.
+
+:::{figure} ../_static/images/work-division-matmul.svg
+:alt: Work division for matmul with 8 cores
+:width: 580px
+:align: center
+
+Matmul work division with `op_dim_splits = [4, 1, 2]`. Matrix A (M×K) is split into 4 row tiles (M_split=4, one color per tile). Matrix B (K×N) is split into 2 column tiles (N_split=2). Each of the 8 cores computes one colored block of C, reading the full K dimension of A and B. K and N are both 64, so their axes are drawn at the same scale — B is square.
+:::
 
 ### Batched Matrix Multiplication
 
