@@ -1,7 +1,7 @@
 # Git Workflow for the torch-spyre Profiling Team
 
 **Repository:** `https://github.com/torch-spyre/torch-spyre`
-**Date:** February 2026
+**Date:** March 2026
 
 ---
 
@@ -9,7 +9,9 @@
 
 We use a **fork-based** workflow. Each developer maintains a personal fork of
 the upstream repository, creates task branches on their fork, and opens PRs
-from the fork into upstream `main`.
+from the fork into upstream `main`. Our work is tracked under
+[EPIC #601 — Foundational Profiling Infrastructure](https://github.com/torch-spyre/torch-spyre/issues/601)
+and related profiler EPICs.
 
 | Remote | URL | Purpose |
 |--------|-----|---------|
@@ -98,8 +100,8 @@ Make your changes, then commit with clear, descriptive messages:
 ```bash
 # Stage your changes
 git add torch_spyre/profiler/__init__.py
-git add torch_spyre/profiler/memory.py
-git add tests/test_profiler.py
+git add torch_spyre/profiler/_spyre_activity.py
+git add tests/profiler/test_spyre_profiler.py
 
 # Commit with a descriptive message
 git commit -m "[profiler] Add profiler module scaffold with profile_spyre() wrapper"
@@ -114,7 +116,7 @@ Prefix all profiler commits with `[profiler]` so they're easy to find in
 |--------|---------|
 | `[profiler]` | `[profiler] Add profile_spyre() context manager` |
 | `[profiler][memory]` | `[profiler][memory] Stub out torch.spyre.memory_allocated()` |
-| `[profiler][test]` | `[profiler][test] Add Tier 1 CPU-only profiler tests` |
+| `[profiler][test]` | `[profiler][test] Add profiler test scaffold with skip markers` |
 | `[profiler][docs]` | `[profiler][docs] Add profiling user guide` |
 
 Push your task branch to your fork:
@@ -174,7 +176,7 @@ conflicts. Examples of good PR scope:
 
 - `[profiler] Add profiler module scaffold with profile_spyre() wrapper` — one file, one feature
 - `[profiler][memory] Add memory_allocated() and memory_reserved() stubs` — related APIs together
-- `[profiler][test] Add Tier 1 CPU-only profiler tests` — tests for existing code
+- `[profiler][test] Add profiler test scaffold with skip markers` — tests for existing code
 
 Avoid PRs that mix unrelated changes (e.g., don't add memory APIs and trace
 enrichment in the same PR).
@@ -269,9 +271,10 @@ Their changes will be available immediately.
 
 ### "Someone else is working on the same file"
 
-Communicate. Our files are relatively isolated (`torch_spyre/profiler/` is
-new), but if you're both editing the same function, coordinate via Slack
-first. Keep PRs small and merge them quickly to minimize overlap.
+Communicate. Our files are relatively isolated (`torch_spyre/profiler/`,
+`torch_spyre/csrc/profiler/`, `tests/profiler/`), but if you're both editing
+the same function, coordinate via Slack first. Keep PRs small and merge them
+quickly to minimize overlap.
 
 ### "My PR is stuck in review and main has moved ahead"
 
@@ -288,27 +291,38 @@ git push --force-with-lease origin profiler/<your-task>
 ## Our Files (Agreed Directory Structure)
 
 All profiling work lives in these directories. This was coordinated with the
-torch-spyre maintainers to avoid collisions:
+torch-spyre maintainers to avoid collisions. See
+[EPIC #601](https://github.com/torch-spyre/torch-spyre/issues/601) for the
+full plan and sub-issue breakdown.
 
 ```
 torch-spyre/
 ├── torch_spyre/
-│   ├── profiler/              # NEW — Python profiler module
-│   │   ├── __init__.py        # profile_spyre(), spyre_activities()
-│   │   └── memory.py          # torch.spyre.memory_* APIs
+│   ├── profiler/                  # NEW — Python profiler package
+│   │   ├── __init__.py            # profile_spyre(), supported_activities()
+│   │   ├── _spyre_activity.py     # SpyreProfilerActivity registration
+│   │   └── memory.py              # torch.spyre.memory_* APIs
 │   └── csrc/
-│       └── profiler/          # NEW — C++ registration & memory plumbing
+│       └── profiler/              # NEW — C++ registration & build wiring
+│           ├── CMakeLists.txt     # Guarded by USE_SPYRE_PROFILER flag
+│           ├── SpyreProfilerInit.h/.cpp
+│           └── SpyreObserver.h/.cpp
 ├── tests/
-│   └── test_profiler.py       # NEW — 3-tier test suite
-├── examples/
-│   ├── profiling_basic.py     # NEW
-│   ├── profiling_memory.py    # NEW
-│   └── profiling_inference.py # NEW
+│   └── profiler/                  # NEW — profiler test suite
+│       ├── conftest.py            # spyre_profiler_available fixture + skip markers
+│       └── test_spyre_profiler.py # Import, activity, trace, and sync tests
 └── docs/
-    └── profiling.md           # NEW — user guide
+    └── profiling.md               # NEW — user guide & architecture overview
 ```
 
-> **Note:** `torch_spyre/csrc/profiler/` contains C++ registration and build
-> system work. `torch_spyre/profiler/` contains Python APIs, trace enrichment,
-> and user-facing code. `tests/`, `examples/`, and `docs/` are shared across
-> the team.
+> **Build flag:** Set `USE_SPYRE_PROFILER=1` to enable profiler support. When
+> unset, `torch_spyre` still imports cleanly — the profiler is guarded by a
+> `try/except ImportError`. See
+> [#927](https://github.com/torch-spyre/torch-spyre/issues/927) for build
+> system details.
+
+> **Note:** `torch_spyre/csrc/profiler/` contains C++ registration,
+> PrivateUse1 observer wiring, and build system integration.
+> `torch_spyre/profiler/` contains Python APIs, the `profile_spyre()` wrapper,
+> and user-facing code. `tests/profiler/` and `docs/` are shared across the
+> team.
