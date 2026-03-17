@@ -5,7 +5,7 @@ This project contains the PyTorch layer C++ and Python code for supporting the [
 ## Setup and Build
 
 Building this project currently requires a development build of the IBM Spyre Software Stack.
-If you are within IBM, instructions can be found in the internal `#aiu-inductor` slack channel.
+Internal build instructions are available to IBM employees through internal documentation channels.
 
 ## How to Try It Out
 
