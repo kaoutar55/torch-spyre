@@ -79,7 +79,7 @@ A 2D PyTorch tensor with shape (4, 6) and stride (6, 1). Each cell shows its lin
 :width: 680px
 :align: center
 
-Host (CPU) memory layout of a 2D PyTorch tensor: elements are stored in row-major order, with rows of each colour placed consecutively in a flat 1D address space. *Source: [Tiled Tensor RFC](https://github.com/torch-spyre/torch-spyre/blob/main/RFCs/0047-TiledTensors/0047-TiledTensorsRFC.md).*
+Host (CPU) memory layout of a 2D PyTorch tensor: elements are stored in row-major order, with rows of each colour placed consecutively in a flat 1D address space. *Source: [Tiled Tensor RFC](https://github.com/torch-spyre/rfcs/blob/main/0047-TiledTensors/0047-TiledTensorsRFC.md).*
 :::
 
 In PyTorch, the combination of the size vector and stride vector fully determines
@@ -135,7 +135,7 @@ dimensions that represent tiling and padding required by the hardware.
 :width: 680px
 :align: center
 
-Logical (2D) view of a Spyre tiled tensor. Each row is a distinct colour; each cell represents a stick-sized chunk of 64 elements. The device layout breaks the flat PyTorch tensor into a 2D grid of tiles. *Source: [Tiled Tensor RFC](https://github.com/torch-spyre/torch-spyre/blob/main/RFCs/0047-TiledTensors/0047-TiledTensorsRFC.md).*
+Logical (2D) view of a Spyre tiled tensor. Each row is a distinct colour; each cell represents a stick-sized chunk of 64 elements. The device layout breaks the flat PyTorch tensor into a 2D grid of tiles. *Source: [Tiled Tensor RFC](https://github.com/torch-spyre/rfcs/blob/main/0047-TiledTensors/0047-TiledTensorsRFC.md).*
 :::
 
 A Spyre tensor has a Spyre tensor layout in addition to a PyTorch tensor layout.
@@ -190,7 +190,7 @@ PyTorch coordinates to an offset from the base address of the PyTorch tensor.
 :width: 680px
 :align: center
 
-Device (DDR) memory layout of the same tiled tensor. Sticks are stored in device-rank row-major order: all sticks from the first tile row appear before sticks from the second, enabling efficient DMA transfers of contiguous tile slices. *Source: [Tiled Tensor RFC](https://github.com/torch-spyre/torch-spyre/blob/main/RFCs/0047-TiledTensors/0047-TiledTensorsRFC.md).*
+Device (DDR) memory layout of the same tiled tensor. Sticks are stored in device-rank row-major order: all sticks from the first tile row appear before sticks from the second, enabling efficient DMA transfers of contiguous tile slices. *Source: [Tiled Tensor RFC](https://github.com/torch-spyre/rfcs/blob/main/0047-TiledTensors/0047-TiledTensorsRFC.md).*
 :::
 
 Dimensions in device_size may be padded. For example the previous Spyre tensor

@@ -5,20 +5,20 @@ decisions behind Torch-Spyre. RFCs are written before implementation and serve
 as a record of why things are built the way they are.
 
 The full RFC sources live in the
-[`RFCs/`](https://github.com/torch-spyre/torch-spyre/tree/main/RFCs)
-directory of the repository. To propose a new RFC, open an issue first, then
+[`torch-spyre/rfcs`](https://github.com/torch-spyre/rfcs)
+repository. To propose a new RFC, open an issue first, then
 copy the
-[template](https://github.com/torch-spyre/torch-spyre/tree/main/RFCs/NNNN-template)
+[template](https://github.com/torch-spyre/rfcs/tree/main/NNNN-template)
 and submit a pull request.
 
 ## Index
 
 | RFC | Title | Area |
 |-----|-------|------|
-| [0047](https://github.com/torch-spyre/torch-spyre/blob/main/RFCs/0047-TiledTensors/0047-TiledTensorsRFC.md) | Tensors with Device-Specific Layouts | Tensor layouts |
-| [0171](https://github.com/torch-spyre/torch-spyre/blob/main/RFCs/0171-SpyreDevice/0171-SpyreDeviceRFC.md) | Spyre Device Construct in PyTorch | Device integration |
-| [0264](https://github.com/torch-spyre/torch-spyre/blob/main/RFCs/0264-SpyreCICD/0264-SpyrePyTorchCICDRFC.md) | PyTorch CI/CD for IBM Spyre | CI/CD |
-| [0682](https://github.com/torch-spyre/torch-spyre/blob/main/RFCs/0682-KtirSpec/0682-KtirSpecRFC.md) | Kernel Tile Intermediate Representation | Compiler IR |
+| [0047](https://github.com/torch-spyre/rfcs/blob/main/0047-TiledTensors/0047-TiledTensorsRFC.md) | Tensors with Device-Specific Layouts | Tensor layouts |
+| [0171](https://github.com/torch-spyre/rfcs/blob/main/0171-SpyreDevice/0171-SpyreDeviceRFC.md) | Spyre Device Construct in PyTorch | Device integration |
+| [0264](https://github.com/torch-spyre/rfcs/blob/main/0264-SpyreCICD/0264-SpyrePyTorchCICDRFC.md) | PyTorch CI/CD for IBM Spyre | CI/CD |
+| [0682](https://github.com/torch-spyre/rfcs/blob/main/0682-KtirSpec/0682-KtirSpecRFC.md) | Kernel Tile Intermediate Representation | Compiler IR |
 
 ## Summaries
 
