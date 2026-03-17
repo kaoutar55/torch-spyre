@@ -81,5 +81,5 @@ todo_include_todos = True
 
 # -- Suppress known non-critical warnings ------------------------------------
 suppress_warnings = [
-    "autodoc.import_cycle",  # mocked imports trigger spurious detection warnings
+    "autodoc",  # torch_spyre is mocked; suppress all autodoc warnings (mocked_object, import_cycle)
 ]
