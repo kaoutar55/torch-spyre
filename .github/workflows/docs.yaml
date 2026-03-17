@@ -4,13 +4,13 @@ on:
   push:
     branches: [main]
     paths:
-      - 'docs/**'
-      - '.readthedocs.yaml'
+      - docs/**
+      - .readthedocs.yaml
   pull_request:
     branches: [main]
     paths:
-      - 'docs/**'
-      - '.readthedocs.yaml'
+      - docs/**
+      - .readthedocs.yaml
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}

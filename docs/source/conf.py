@@ -14,19 +14,19 @@ release = "0.0.1"
 
 # -- General configuration ---------------------------------------------------
 extensions = [
-    "sphinx.ext.autodoc",       # auto-generate API docs from docstrings
-    "sphinx.ext.autosummary",   # generate summary tables for modules
-    "sphinx.ext.napoleon",      # Google/NumPy docstring support
-    "sphinx.ext.intersphinx",   # cross-reference external docs (PyTorch, Python)
-    "sphinx.ext.viewcode",      # add [source] links to API pages
-    "sphinx.ext.todo",          # support .. todo:: directives
-    "myst_parser",              # parse Markdown (.md) files
+    "sphinx.ext.autodoc",  # auto-generate API docs from docstrings
+    "sphinx.ext.autosummary",  # generate summary tables for modules
+    "sphinx.ext.napoleon",  # Google/NumPy docstring support
+    "sphinx.ext.intersphinx",  # cross-reference external docs (PyTorch, Python)
+    "sphinx.ext.viewcode",  # add [source] links to API pages
+    "sphinx.ext.todo",  # support .. todo:: directives
+    "myst_parser",  # parse Markdown (.md) files
 ]
 
 # MyST-Parser settings — allow RST-style cross-refs inside .md files
 myst_enable_extensions = [
-    "colon_fence",   # ::: fenced directives
-    "deflist",       # definition lists
+    "colon_fence",  # ::: fenced directives
+    "deflist",  # definition lists
 ]
 
 # Paths that contain templates
@@ -81,5 +81,5 @@ todo_include_todos = True
 
 # -- Suppress known non-critical warnings ------------------------------------
 suppress_warnings = [
-    "autodoc.import_cycle",   # mocked imports trigger spurious detection warnings
+    "autodoc.import_cycle",  # mocked imports trigger spurious detection warnings
 ]
