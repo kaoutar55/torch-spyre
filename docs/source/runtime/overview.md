@@ -6,8 +6,8 @@ allocation, and kernel execution at inference time.
 ## Responsibilities
 
 - **Device registration** — registering `spyre` as a PyTorch device type
-- **Tensor memory management** — allocating and freeing LPDDR5 device
-  memory for `SpyreTensorImpl` objects
+- **Tensor memory management** — allocating and freeing device DRAM (DDR)
+  for `SpyreTensorImpl` objects
 - **DMA transfers** — moving tensor data between host (CPU) memory and
   device (DDR) memory via the `to()` / `from_device()` APIs
 - **Kernel dispatch** — loading compiled program binaries and
@@ -45,6 +45,8 @@ to handle device management and synchronization.
 | `csrc/spyre_tensor_impl.cpp` | `SpyreTensorImpl` — the device tensor backing store |
 | `csrc/spyre_mem.cpp` | Device memory allocation and DMA |
 | `csrc/spyre_views.cpp` | Tensor view and striding support on device |
+| `csrc/spyre_guard.cpp` | `SpyreGuardImpl` — device guard and synchronization |
+| `csrc/spyre_stream.cpp` | Stream management for asynchronous execution |
 
 ## Python Entry Point
 
@@ -111,6 +113,21 @@ Many eager ops are themselves compiled via `torch.compile` (AOT path)
 so they do not need to be hand-written. The compiled artifacts are
 cached using the standard `torch.compile` cache, so subsequent
 invocations do not re-compile.
+
+## Streams
+
+Torch-Spyre supports stream-based asynchronous execution, following the
+same API pattern as `torch.cuda` streams:
+
+| API | Description |
+|-----|-------------|
+| `torch.spyre.Stream()` | Create a new Spyre stream |
+| `torch.spyre.current_stream()` | Get the current stream for the device |
+| `torch.spyre.default_stream()` | Get the default stream for the device |
+| `torch.spyre.synchronize()` | Wait for all operations on all streams to complete |
+
+Streams are implemented in `torch_spyre/streams.py` (Python) and
+`csrc/spyre_stream.cpp` (C++).
 
 ## Multi-Card Support
 

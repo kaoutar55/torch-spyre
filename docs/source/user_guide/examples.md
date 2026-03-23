@@ -11,6 +11,10 @@ common Torch-Spyre use cases.
 |--------|-------------|
 | `tensor_allocate.py` | Creating and allocating tensors on the Spyre device |
 | `softmax.py` | Computing softmax on Spyre |
+| `gelu.py` | Computing GELU activation on Spyre |
+| `mean.py` | Computing mean reduction on Spyre |
+| `mul.py` | Element-wise multiplication on Spyre |
+| `softplus.py` | Computing softplus activation on Spyre |
 
 ## Running an Example
 

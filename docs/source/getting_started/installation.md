@@ -3,7 +3,7 @@
 ## Prerequisites
 
 - Python >= 3.11
-- PyTorch ~= 2.9.1
+- PyTorch ~= 2.10.0
 - IBM Spyre Software Stack (required for hardware execution)
 
 ## Build Instructions

@@ -9,7 +9,7 @@ pipeline, see [Compiler Architecture](architecture.md).
 :width: 95%
 :align: center
 
-The Torch-Spyre compilation pipeline. The left end (green) is entirely upstream PyTorch — Dynamo/Autograd and Inductor. The right end (pink) is Torch-Spyre's custom Inductor backend, which generates KernelSpecs, SuperDSCs, and host code. Torch-Spyre also adds configurations and extensions to the upstream stages to tailor them for the Spyre device.
+The Torch-Spyre compilation pipeline. The left end (green) is entirely upstream PyTorch — Dynamo/Autograd and Inductor. The right end (pink) is Torch-Spyre's custom Inductor backend, which generates OpSpecs, SuperDSCs, and host code. Torch-Spyre also adds configurations and extensions to the upstream stages to tailor them for the Spyre device.
 :::
 
 ## Extension Points
@@ -20,13 +20,13 @@ all registered in
 
 | Extension Point | Stage | Purpose |
 |----------------|-------|---------|
-| `CustomPrePass` | FX Graph (pre-lowering) | Graph rewrites before decomposition |
-| `CustomPostPass` | FX Graph (post-lowering) | Graph rewrites after lowering to LoopLevelIR |
-| `CustomSchedulerPass` | Scheduler | Kernel fusion and scheduling decisions |
+| `CustomPrePasses` | FX Graph (pre-lowering) | Graph rewrites before decomposition |
+| `CustomPostPasses` | FX Graph (late post-grad) | Graph rewrites late in the post-grad FX graph passes |
+| `_pre_fusion_custom_pass` | Scheduler | Kernel fusion and scheduling decisions (registered via `scheduler_passes` function) |
 
 ## Decompositions
 
-Spyre-specific decompositions are registered with `@register_decomposition`
+Spyre-specific decompositions are registered with `@register_spyre_decomposition`
 in
 [decompositions.py](https://github.com/torch-spyre/torch-spyre/blob/main/torch_spyre/_inductor/decompositions.py).
 Decompositions transform complex ATen operations into simpler primitives
@@ -49,18 +49,18 @@ using `@torch.library.custom_op`. Each custom op requires:
 3. Either a lowering + `SpyreOpFuncs` entry, or a decomposition that
    removes it from the graph before lowering
 
-## Kernel Compilation: LoopLevelIR → KernelSpec
+## Kernel Compilation: LoopLevelIR → OpSpec
 
 [spyre_kernel.py](https://github.com/torch-spyre/torch-spyre/blob/main/torch_spyre/_inductor/spyre_kernel.py)
-compiles LoopLevelIR into `KernelSpec` — a high-level, operation-level
+compiles LoopLevelIR into `OpSpec` — a high-level, operation-level
 description for the hardware. `SpyreOpFuncs` maps ATen operation names
 to the corresponding Spyre OpFunc implementations.
 
-## Code Generation: KernelSpec → SuperDSC
+## Code Generation: OpSpec → SuperDSC
 
 The
 [codegen/](https://github.com/torch-spyre/torch-spyre/blob/main/torch_spyre/_inductor/codegen/)
-package translates `KernelSpec` into SuperDSC JSON — the input format
+package translates `OpSpec` into SuperDSC JSON — the input format
 for the DeepTools back-end compiler.
 
 ## Stickification Pass

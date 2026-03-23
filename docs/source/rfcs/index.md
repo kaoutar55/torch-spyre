@@ -17,7 +17,8 @@ and submit a pull request.
 |-----|-------|------|
 | [0047](https://github.com/torch-spyre/rfcs/blob/main/0047-TiledTensors/0047-TiledTensorsRFC.md) | Tensors with Device-Specific Layouts | Tensor layouts |
 | [0171](https://github.com/torch-spyre/rfcs/blob/main/0171-SpyreDevice/0171-SpyreDeviceRFC.md) | Spyre Device Construct in PyTorch | Device integration |
-| [0264](https://github.com/torch-spyre/rfcs/blob/main/0264-SpyreCICD/0264-SpyrePyTorchCICDRFC.md) | PyTorch CI/CD for IBM Spyre | CI/CD |
+| [0186](https://github.com/torch-spyre/rfcs/blob/main/0186-TestFrameworks/0186-TestFrameworks.md) | Test Frameworks | Testing |
+| [0601](https://github.com/torch-spyre/rfcs/blob/main/0601-SpyreProfilingToolkit/0601-SpyreProfilingToolkitRFC.md) | Spyre Profiling Toolkit | Profiling |
 | [0682](https://github.com/torch-spyre/rfcs/blob/main/0682-KtirSpec/0682-KtirSpecRFC.md) | Kernel Tile Intermediate Representation | Compiler IR |
 
 ## Summaries
@@ -40,11 +41,22 @@ mechanism used to avoid upstream PyTorch changes.
 
 See also: [Architecture Overview](../architecture/index.rst)
 
-### RFC 0264 — PyTorch CI/CD for IBM Spyre
+### RFC 0186 — Test Frameworks
 
-Specifies the continuous integration and continuous delivery pipeline for
-Torch-Spyre, including test matrix, artifact publishing, and the GitHub Actions
-workflow structure.
+Defines the testing frameworks and conventions used by torch-spyre, including
+the compiled-path test infrastructure, the `ParameterizedTestMeta` metaclass,
+and the `compare_with_cpu` utility for validating Spyre results against CPU
+reference outputs.
+
+### RFC 0601 — Spyre Profiling Toolkit
+
+Proposes a set of profiling tools spanning the full stack — from PyTorch-level
+execution traces to device-level hardware metrics. Covers PyTorch Profiler
+integration via `REGISTER_PRIVATEUSE1_PROFILER`, dual-memory profiling (DDR
+and scratchpad), AIU SMI for device monitoring, IR instrumentation-based
+fine-grained profiling, and the Holistic Trace Analyser for Spyre.
+
+See also: [Profiling](../user_guide/profiling.md)
 
 ### RFC 0682 — Kernel Tile Intermediate Representation (KTIR)
 

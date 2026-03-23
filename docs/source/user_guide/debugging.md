@@ -39,13 +39,16 @@ print(result)
 
 ## Step 2 — Enable Debug Environment Variables
 
-Three environment variables control the level of diagnostic output:
+The following environment variables control the level of diagnostic output:
 
 | Variable | Effect |
 |----------|--------|
 | `TORCHINDUCTOR_FORCE_DISABLE_CACHES=1` | Forces full recompilation on every run; ensures you see fresh artifacts, not cached ones |
 | `TORCH_SPYRE_DEBUG=1` | Logs all CPU↔Spyre data transfers, including tensor shapes, layouts, and raw values |
 | `TORCH_COMPILE_DEBUG=1` | Writes intermediate compiler artifacts to a local directory for offline inspection |
+| `SPYRE_INDUCTOR_LOG=1` | Enable Spyre-specific Inductor logging |
+| `SPYRE_INDUCTOR_LOG_LEVEL=DEBUG` | Set Spyre Inductor log verbosity (DEBUG, INFO, WARNING, ERROR) |
+| `SPYRE_LOG_FILE=path/to/file.log` | Redirect Spyre Inductor log output to a file |
 
 Run your reproducer with all three enabled:
 

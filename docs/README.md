@@ -19,13 +19,12 @@ docs/
     ├── _static/
     │   ├── css/custom.css  ← theme overrides
     │   └── images/         ← all figures referenced by docs pages
-    ├── overview/           ← Spyre Accelerator Overview section
+    ├── architecture/       ← Spyre accelerator and dataflow architecture
     ├── getting_started/    ← Installation and Quickstart
-    ├── user_guide/         ← Tensor layouts, running models
+    ├── user_guide/         ← Tensor layouts, running models, profiling, debugging
     ├── compiler/           ← Compiler architecture, passes, adding ops
     ├── runtime/            ← Runtime layer and device registration
-    ├── profiling/          ← Profiling workflows
-    ├── examples/           ← Annotated code examples
+    ├── rfcs/               ← RFC index and summaries
     ├── api/                ← Auto-generated API reference
     └── contributing/       ← Contribution guidelines, CI/CD
 ```
@@ -39,7 +38,7 @@ standard CommonMark plus RST-style cross-references and directives.
 
 ## Prerequisites
 
-- Python 3.9 or later
+- Python 3.11 or later
 - `pip`
 
 ---
@@ -236,10 +235,10 @@ git commit -s -m "docs: add section on tensor DMA encoding"
 
 ### 5. Open a pull request
 
-Push your branch and open a PR against `main`:
+Push your branch to your fork and open a PR against `main`:
 
 ```bash
-git push -u origin docs/my-topic
+git push -u fork docs/my-topic
 ```
 
 Then open a PR on GitHub. In the PR description:

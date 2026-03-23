@@ -1,6 +1,19 @@
 # Torch Spyre Device Enablement
 
-This project contains the PyTorch layer C++ and Python code for supporting the [IBM Spyre device](./docs/spyre.md) as a new device, named `spyre`, in PyTorch.
+This project contains the PyTorch layer C++ and Python code for supporting the [IBM Spyre device](./docs/source/architecture/spyre_accelerator.md) as a new device, named `spyre`, in PyTorch.
+
+## Documentation
+
+Full documentation: <https://torch-spyre.readthedocs.io/>
+
+To build the docs locally:
+
+```bash
+pip install -r docs/requirements.txt
+cd docs && make html
+```
+
+See the [Documentation Contributor Guide](./docs/README.md) for details.
 
 ## Setup and Build
 
