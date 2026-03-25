@@ -12,8 +12,9 @@ The following profiling capabilities are available in the current release:
 
 - **Compilation time** — time spent in the front-end and back-end compilers
 - **Kernel execution time** — wall-clock time per kernel on device
-- **Memory usage** — peak DDR allocation during a forward pass
+- **Memory usage** — peak and active DDR allocation during a forward pass
 - **Work division efficiency** — core utilization for each operation
+- **IR translation** — per-op visibility through Inductor provenance tracking
 
 ### Inductor Logging
 
@@ -25,6 +26,7 @@ the compilation pipeline:
 | `SPYRE_INDUCTOR_LOG=1` | Enable Spyre Inductor logging |
 | `SPYRE_INDUCTOR_LOG_LEVEL=DEBUG` | Set log verbosity (DEBUG, INFO, WARNING, ERROR) |
 | `SPYRE_LOG_FILE=path/to/file.log` | Redirect Spyre log output to a file |
+| `INDUCTOR_PROVENANCE=1` | Enable Inductor provenance tracking (maps IR nodes to source ops) |
 | `TORCH_LOGS="+inductor"` | Enable verbose PyTorch Inductor logging |
 
 ### Integration with PyTorch Profiler
@@ -60,18 +62,20 @@ levels and granularities:
 
 | Layer | Tool | Granularity | Status |
 |-------|------|-------------|--------|
-| Application / PyTorch | Spyre Extension for PyTorch Profiler | Kernel-level | In progress |
-| Compiler Frontend | Enhanced Inductor Provenance Tracking | Pass-level | Planned |
+| Application / PyTorch | Spyre Extension for PyTorch Profiler | Kernel-level | Available |
+| Compiler Frontend | Enhanced Inductor Provenance Tracking | Pass-level | Available |
 | Compiler Backend | IR Instrumentation-based Fine-Grained Profiler | Intra-kernel | Planned |
-| Runtime | Profiling Tools Interface (libaiupti) | Kernel + memory | In progress |
+| Runtime | libaiupti + [kineto-spyre](https://github.com/IBM/kineto-spyre) | Kernel + memory | In progress |
 | Device Driver / HW | AIU SMI | Device-level | Available |
 | Post-processing | aiu-trace-analyzer | Derived metrics | Available |
 
 ### Planned: Device-Side Profiling via PyTorch Profiler
 
-The toolkit will integrate with the PyTorch Profiler through the
-`REGISTER_PRIVATEUSE1_PROFILER` mechanism, allowing Spyre workloads to
-be profiled with `ProfilerActivity.PrivateUse1`:
+The toolkit integrates with the PyTorch Profiler through the
+`REGISTER_PRIVATEUSE1_PROFILER` mechanism and leverages
+[kineto-spyre](https://github.com/IBM/kineto-spyre) (Kineto natively
+available in PyTorch). Spyre workloads can be profiled with
+`ProfilerActivity.PrivateUse1`:
 
 ```python
 import torch
@@ -101,7 +105,8 @@ This integration will provide:
 - Execution and memory timelines for CPU and Spyre operations
 - Call stack and file/line numbers
 - Spyre kernel name, execution time, and invocation count
-- Reserved, allocated, and peak memory for the workload
+- Peak and active memory for the workload
+- Per-kernel memory utilization
 
 ### Planned: Memory Profiling
 
@@ -110,13 +115,12 @@ Spyre has a **dual-memory hierarchy** requiring separate tracking:
 | Memory | Managed by | Observable at |
 |--------|-----------|---------------|
 | DDR (device memory) | Runtime allocator | Runtime |
-| Scratchpad (on-chip) | Compiler + LX planner | Compile-time + runtime |
+| Scratchpad (on-chip) | Compiler + LX planner | Compile-time |
 
 **DDR memory APIs** (planned):
 
-- `torch.spyre.memory_allocated()` — current DDR usage
+- `torch.spyre.memory_allocated()` — active DDR usage
 - `torch.spyre.max_memory_allocated()` — peak DDR usage
-- `torch.spyre.memory_reserved()` — reserved DDR pool size
 
 **Scratchpad metrics** (planned):
 
@@ -131,7 +135,7 @@ AIU SMI is a command-line monitoring tool for Spyre devices, similar to
 - Power consumption and temperature
 - PT array utilization %
 - Bandwidth (device memory read/write, PCIe rx/tx)
-- Reserved and active memory
+- Peak and active memory
 - Process-to-VF mapping
 
 Memory statistics and multi-card metrics are being expanded.
@@ -148,6 +152,7 @@ direct analog in GPU profiling:
 | Reconfiguration latency | Time to load new dataflow configurations between kernels |
 | Inter-core communication | Work division efficiency across up to 32 cores |
 | Stick alignment overhead | Padding/reformatting cost for 128-byte stick misalignment |
+| LX queue size | Scratchpad memory load unit buffer size |
 
 ### Planned: Compile-Time vs Runtime Profiling Boundary
 

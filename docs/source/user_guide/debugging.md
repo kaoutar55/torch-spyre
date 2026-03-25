@@ -73,13 +73,19 @@ the pipeline:
 
 ```
 torch_compile_debug/
-└── <model_name>/
-    ├── fx_graph_readable.py      ← traced FX Graph (ATen ops)
-    ├── fx_graph_transformed.py   ← FX Graph after Inductor passes
-    ├── ir_pre_fusion.txt         ← LoopLevelIR before kernel fusion
-    ├── ir_post_fusion.txt        ← LoopLevelIR after kernel fusion
-    └── <kernel>/
-        └── sdsc.json             ← SuperDSC kernel spec (input to DeepTools)
+└── run_<timestamp>-pid_<pid>/
+    ├── torchdynamo/
+    │   └── debug.log
+    └── torchinductor/
+        ├── aot_model___0_debug.log
+        └── model__0_inference_0.0/
+            ├── fx_graph_readable.py                              ← traced FX Graph (ATen ops)
+            ├── fx_graph_runnable.py                              ← self-contained runnable graph
+            ├── fx_graph_transformed.py                           ← FX Graph after Inductor passes
+            ├── inductor_provenance_tracking_node_mappings.json   ← IR-to-source mapping
+            ├── ir_pre_fusion.txt                                 ← LoopLevelIR before kernel fusion
+            ├── ir_post_fusion.txt                                ← LoopLevelIR after kernel fusion
+            └── output_code.py                                    ← generated host code
 ```
 
 ### What to look for at each layer

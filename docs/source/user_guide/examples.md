@@ -29,7 +29,6 @@ A minimal Torch-Spyre script follows this pattern:
 
 ```python
 import torch
-import torch_spyre
 
 DEVICE = torch.device("spyre")
 

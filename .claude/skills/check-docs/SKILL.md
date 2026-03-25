@@ -27,17 +27,77 @@ internal implementation details into user-facing pages.
 
 **File:** `docs/source/user_guide/supported_operations.md`
 
-- Cross-reference the ops table against the actual op registrations in:
+The table has four key columns: **Operation**, **Eager**, **Compiled**,
+**Execution**, and **Notes**. Each must be verified independently.
+
+### 1a. Compiled support (torch.compile path)
+
+Cross-reference the "Compiled" column against the actual op registrations in:
   - `torch_spyre/_inductor/customops.py` (custom ops)
   - `torch_spyre/_inductor/decompositions.py` (decompositions)
   - `torch_spyre/_inductor/lowering.py` (lowerings)
-  - `torch_spyre/ops/eager.py` (eager ops)
   - `torch_spyre/ops/fallbacks.py` (fallback registrations)
+
+Use `tests/inductor/test_inductor_ops.py` as the primary reference for
+what is truly tested in the compiled path:
+  - Every op tested there should appear in the table with Compiled = Y.
+  - Check for ops in test_inductor_ops.py that are missing from the table.
+  - Check for ops in the table that have no corresponding test.
+
+### 1b. Eager support (direct tensor ops without torch.compile)
+
+Eager support comes from **multiple sources**. The primary source of
+truth is `torch_spyre/codegen_ops.py`, which is **generated at pip
+install time** by `codegen/gen.py` from `codegen/inputs/Metadata.yaml`.
+This file is not checked into the repo — it only exists in an installed
+build. It registers a large number of ATen ops for eager dispatch.
+
+Additional eager op sources:
+  - `torch_spyre/ops/eager.py` — manually registered ops via
+    `@torch.library.register_kernel` (e.g., `mm`, `silu`, `mish`).
+  - `torch_spyre/_inductor/decompositions.py` — some decomposed ops
+    also work in eager mode, specifically: `rms_norm`, `layer_norm`,
+    `softplus`, `linear`, and `scaled_dot_product_attention`.
+
+To verify the Eager column:
+  - Read `codegen/inputs/Metadata.yaml` — this is the input to the
+    codegen and lists every op that `codegen_ops.py` will register.
+    Every `operator_name` entry with `template_name: base` is a
+    compute op; entries with `template_name: view` are view ops.
+    This is the best proxy when the generated file is not available.
+  - Read `torch_spyre/ops/eager.py` for additional manual registrations
+    (e.g., `mm`, `silu`, `mish`) that supplement codegen_ops.
+  - Some decompositions in `torch_spyre/_inductor/decompositions.py`
+    are also triggered in eager mode: `rms_norm`, `layer_norm`,
+    `softplus`, `linear`, and `scaled_dot_product_attention`. These
+    should be marked Eager = Y.
+  - For compiled-only determination: check `tests/inductor/test_inductor_ops.py`
+    for `run_eager=False` — any op tested with this flag is
+    **compiled-only** and must NOT have Eager = Y.
+  - The full eager op set is: Metadata.yaml ops + eager.py ops +
+    the five decompositions listed above. Do not use `eager.py` alone.
+
+### 1c. View ops
+
+View ops (reshape, transpose, permute, squeeze, unsqueeze, clone,
+contiguous, expand, narrow, select) require special attention:
+  - View ops with partial support should be noted (e.g., squeeze/unsqueeze
+    may trigger internal recompile for certain shapes).
+  - View ops that are planned but not yet implemented (e.g., expand,
+    narrow) should be listed with empty Eager/Compiled cells and a
+    "Planned" note. Check for TODOs in `test_inductor_ops.py`.
+  - Most view ops are compiled-only — verify against `run_eager=False`.
+
+### 1d. Execution column
+
+  - Ops in `torch_spyre/ops/fallbacks.py` (registered via
+    `@register_fallback`) run on CPU — mark as "CPU fallback".
+  - All other ops run on Spyre — mark as "Spyre".
+
+### 1e. General checks
+
 - Check for ops that exist in code but are missing from the table.
 - Check for ops listed in the table that no longer exist in code.
-- Verify the model coverage columns (GPT-2, Llama, Hybrid, ResNet-50) match
-  what the test suite actually exercises in `tests/inductor/test_inductor_ops.py`
-  and `tests/inductor/test_building_blocks.py`.
 
 ## 2. RFC Links and References
 

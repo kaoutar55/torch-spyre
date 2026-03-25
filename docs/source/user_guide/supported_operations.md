@@ -8,83 +8,106 @@ see [Adding Operations](../compiler/adding_operations.md).
 
 ## Operations Table
 
-| Operation | Execution | Notes |
-|-----------|-----------|-------|
-| **Matrix Operations** | | |
-| `torch.mm` | Spyre | |
-| `torch.matmul` | Spyre | |
-| `torch.addmm` | Spyre | Decomposed to `mm` + `add` |
-| `torch.bmm` | Spyre | |
-| `torch.nn.functional.linear` | Spyre | Decomposed to `matmul` + `add` |
-| **Activation Functions** | | |
-| `torch.nn.functional.softmax` | Spyre | |
-| `torch.nn.functional.layer_norm` | Spyre | Custom decomposition |
-| `torch.nn.functional.rms_norm` | Spyre | Custom decomposition |
-| `torch.nn.functional.gelu` | Spyre | Custom op + lowering |
-| `torch.nn.functional.silu` | Spyre | |
-| `torch.nn.functional.relu` | Spyre | |
-| `torch.nn.functional.sigmoid` | Spyre | |
-| `torch.nn.functional.softplus` | Spyre | Custom op + lowering |
-| `torch.nn.functional.dropout` | Spyre | |
-| `torch.nn.functional.scaled_dot_product_attention` | Spyre | Custom decomposition (math implementation) |
-| **Pointwise Unary** | | |
-| `torch.abs` | Spyre | |
-| `torch.neg` | Spyre | |
-| `torch.exp` | Spyre | |
-| `torch.log` | Spyre | |
-| `torch.sqrt` | Spyre | |
-| `torch.rsqrt` | Spyre | |
-| `torch.reciprocal` | Spyre | |
-| `torch.tanh` | Spyre | |
-| `torch.logical_not` | Spyre | Custom decomposition |
-| `torch.clamp` | Spyre | Custom op + lowering |
-| **Pointwise Binary** | | |
-| `torch.add` | Spyre | |
-| `torch.sub` | Spyre | |
-| `torch.mul` | Spyre | |
-| `torch.div` | Spyre | |
-| `torch.where` | Spyre | |
-| **Comparison** | | |
-| `torch.eq` | Spyre | |
-| `torch.ne` | Spyre | |
-| `torch.gt` | Spyre | Custom decomposition |
-| `torch.lt` | Spyre | Custom decomposition |
-| `torch.ge` | Spyre | |
-| `torch.le` | Spyre | |
-| **Reduction** | | |
-| `torch.sum` | Spyre | |
-| `torch.mean` | Spyre | |
-| `torch.amax` | Spyre | |
-| `torch.amin` | Spyre | |
-| `torch.max` | Spyre | |
-| **Tensor Shape** | | |
-| `torch.reshape` / `torch.view` | Spyre | |
-| `torch.transpose` | Spyre | |
-| `torch.permute` | Spyre | |
-| `torch.clone` | Spyre | |
-| `torch.squeeze` | Spyre | |
-| `torch.unsqueeze` | Spyre | |
-| `torch.cat` | Spyre | |
-| **Tensor Creation** | | |
-| `torch.ones` | Spyre | Custom decomposition |
-| `torch.full` | Spyre | Custom decomposition |
-| **Utility** | | |
-| `torch.item` | Spyre | Copies to CPU, returns Python scalar |
-| **CPU Fallback** | | |
-| `torch.embedding` | CPU fallback | Runs on CPU, result transferred back |
-| `torch.arange` | CPU fallback | Runs on CPU, result transferred back |
-| `torch.sin` | CPU fallback | Runs on CPU, result transferred back |
-| `torch.cos` | CPU fallback | Runs on CPU, result transferred back |
-| `torch.tril` | CPU fallback | Runs on CPU, result transferred back |
-| `torch.triu` | CPU fallback | Runs on CPU, result transferred back |
+| Operation | Eager | Compiled | Execution | Notes |
+|-----------|:-----:|:--------:|-----------|-------|
+| **Matrix Operations** | | | | |
+| `torch.mm` | Y | Y | Spyre | |
+| `torch.matmul` | | Y | Spyre | |
+| `torch.addmm` | Y | Y | Spyre | Decomposed to `mm` + `add` |
+| `torch.bmm` | Y | Y | Spyre | |
+| `torch.nn.functional.linear` | Y | Y | Spyre | Decomposed to `matmul` + `add` |
+| **Activation Functions** | | | | |
+| `torch.nn.functional.softmax` | Y | Y | Spyre | |
+| `torch.nn.functional.layer_norm` | Y | Y | Spyre | Custom decomposition |
+| `torch.nn.functional.rms_norm` | Y | Y | Spyre | Custom decomposition |
+| `torch.nn.functional.gelu` | | Y | Spyre | Custom op + lowering |
+| `torch.nn.functional.silu` | Y | Y | Spyre | |
+| `torch.nn.functional.relu` | Y | Y | Spyre | |
+| `torch.nn.functional.sigmoid` | Y | Y | Spyre | |
+| `torch.nn.functional.softplus` | Y | Y | Spyre | Custom op + lowering |
+| `torch.nn.functional.dropout` | | Y | Spyre | |
+| `torch.nn.functional.scaled_dot_product_attention` | Y | Y | Spyre | Custom decomposition (math path) |
+| **Pointwise Unary** | | | | |
+| `torch.abs` | Y | Y | Spyre | |
+| `torch.neg` | Y | Y | Spyre | |
+| `torch.exp` | Y | Y | Spyre | |
+| `torch.log` | Y | Y | Spyre | |
+| `torch.sqrt` | Y | Y | Spyre | |
+| `torch.rsqrt` | Y | Y | Spyre | |
+| `torch.reciprocal` | Y | Y | Spyre | |
+| `torch.tanh` | Y | Y | Spyre | |
+| `torch.logical_not` | Y | Y | Spyre | Custom decomposition |
+| `torch.clamp` | | Y | Spyre | Custom op + lowering |
+| `torch.pow` | Y | Y | Spyre | |
+| **Pointwise Binary** | | | | |
+| `torch.add` | Y | Y | Spyre | |
+| `torch.sub` | Y | Y | Spyre | |
+| `torch.mul` | Y | Y | Spyre | |
+| `torch.div` | Y | Y | Spyre | |
+| `torch.maximum` | Y | Y | Spyre | |
+| `torch.where` | | Y | Spyre | Compiled only |
+| **Comparison** | | | | |
+| `torch.eq` | Y | Y | Spyre | |
+| `torch.ne` | | Y | Spyre | |
+| `torch.gt` | | Y | Spyre | Custom decomposition |
+| `torch.lt` | Y | Y | Spyre | |
+| `torch.ge` | Y | Y | Spyre | |
+| `torch.le` | | Y | Spyre | |
+| **Reduction** | | | | |
+| `torch.sum` | Y | Y | Spyre | |
+| `torch.mean` | Y | Y | Spyre | |
+| `torch.amax` | | Y | Spyre | Compiled only (no eager dispatch) |
+| `torch.amin` | | Y | Spyre | Compiled only (no eager dispatch) |
+| `torch.max` | | Y | Spyre | Compiled only (no eager dispatch) |
+| `torch.linalg.vector_norm` | Y | | Spyre | Eager only (via codegen) |
+| **View Ops** | | | | |
+| `torch.reshape` / `torch.view` | | Y | Spyre | |
+| `torch.transpose` | | Y | Spyre | |
+| `torch.t` | Y | Y | Spyre | View op (via codegen) |
+| `torch.permute` | | Y | Spyre | |
+| `torch.clone` | | Y | Spyre | Compiled only (with `.contiguous()`) |
+| `torch.contiguous` | | Y | Spyre | Compiled only |
+| `torch.squeeze` | | Y | Spyre | Partial; some shapes trigger internal recompile |
+| `torch.unsqueeze` | | Y | Spyre | Partial; some shapes trigger internal recompile |
+| `torch.cat` | Y | Y | Spyre | |
+| `torch.stack` | Y | | Spyre | Eager only (via codegen) |
+| `torch.repeat` | Y | | Spyre | Eager only (via codegen, view op) |
+| `torch.expand` | | | Spyre | Planned; not yet implemented |
+| `torch.narrow` / `torch.select` | | | Spyre | Planned; not yet implemented |
+| **Tensor Creation** | | | | |
+| `torch.ones` | | Y | Spyre | Custom decomposition |
+| `torch.full` | | Y | Spyre | Custom decomposition |
+| **Utility** | | | | |
+| `torch.item` | Y | Y | Spyre | Copies to CPU, returns Python scalar |
+| **CPU Fallback** | | | | |
+| `torch.embedding` | | Y | CPU fallback | Runs on CPU, result transferred back |
+| `torch.arange` | | Y | CPU fallback | Runs on CPU, result transferred back |
+| `torch.sin` | | Y | CPU fallback | Runs on CPU, result transferred back |
+| `torch.cos` | | Y | CPU fallback | Runs on CPU, result transferred back |
+| `torch.tril` | | Y | CPU fallback | Runs on CPU, result transferred back |
+| `torch.triu` | | Y | CPU fallback | Runs on CPU, result transferred back |
 
-> **Note:** The **Execution** column indicates whether an operation runs
-> natively on the Spyre accelerator or falls back to CPU execution.
-> CPU fallback ops are automatically handled by the compiler — a warning
-> is emitted when fallback occurs.
+> **Column key:**
+>
+> - **Eager** — supported when running operations directly on a Spyre
+>   tensor without `torch.compile`. Eager ops are registered via
+>   `codegen_ops.py` (generated at install time from
+>   `codegen/inputs/Metadata.yaml`), `torch_spyre/ops/eager.py`, and
+>   select decompositions.
+> - **Compiled** — supported when using `torch.compile(model, backend="spyre")`.
+> - **Execution** — whether the op runs natively on the Spyre accelerator
+>   or falls back to CPU. CPU fallback ops are automatically handled by
+>   the compiler — a warning is emitted when fallback occurs.
+>
+> View ops have **partial support**: some shapes and dimension
+> combinations may trigger internal recompilation or are not yet
+> implemented (e.g., `expand`, `narrow`). This is an active area of
+> development.
 >
 > This table reflects the operations validated in the torch-spyre test
-> suite at the time of writing. Coverage grows continuously — check the
+> suite (`tests/inductor/test_inductor_ops.py`) and codegen inputs
+> (`codegen/inputs/Metadata.yaml`) at the time of writing. Coverage
+> grows continuously — check the
 > [test suite](https://github.com/torch-spyre/torch-spyre/tree/main/tests)
 > for the latest state.
 
