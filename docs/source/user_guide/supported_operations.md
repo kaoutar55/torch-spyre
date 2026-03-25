@@ -26,6 +26,7 @@ see [Adding Operations](../compiler/adding_operations.md).
 | `torch.nn.functional.sigmoid` | Spyre | |
 | `torch.nn.functional.softplus` | Spyre | Custom op + lowering |
 | `torch.nn.functional.dropout` | Spyre | |
+| `torch.nn.functional.scaled_dot_product_attention` | Spyre | Custom decomposition (math implementation) |
 | **Pointwise Unary** | | |
 | `torch.abs` | Spyre | |
 | `torch.neg` | Spyre | |
@@ -67,6 +68,8 @@ see [Adding Operations](../compiler/adding_operations.md).
 | **Tensor Creation** | | |
 | `torch.ones` | Spyre | Custom decomposition |
 | `torch.full` | Spyre | Custom decomposition |
+| **Utility** | | |
+| `torch.item` | Spyre | Copies to CPU, returns Python scalar |
 | **CPU Fallback** | | |
 | `torch.embedding` | CPU fallback | Runs on CPU, result transferred back |
 | `torch.arange` | CPU fallback | Runs on CPU, result transferred back |

@@ -47,6 +47,7 @@ to handle device management and synchronization.
 | `csrc/spyre_views.cpp` | Tensor view and striding support on device |
 | `csrc/spyre_guard.cpp` | `SpyreGuardImpl` — device guard and synchronization |
 | `csrc/spyre_stream.cpp` | Stream management for asynchronous execution |
+| `csrc/attn_utils.cpp` | SDPA dispatch — routes `scaled_dot_product_attention` to the Spyre backend |
 
 ## Python Entry Point
 

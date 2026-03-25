@@ -65,8 +65,13 @@ html_static_path = ["_static"]
 html_css_files = ["css/custom.css"]
 
 # -- Options for autodoc -----------------------------------------------------
-# Mock heavy C-extension dependencies so the docs build without a compiled
-# torch_spyre install (e.g. in CI or on Python < 3.10).
+# Mock the entire torch_spyre package. Pure-Python modules like streams.py
+# cannot be imported without the C++ extensions and Spyre hardware, so
+# autodoc cannot auto-generate their docs. The public API is documented
+# manually in api/torch_spyre.rst instead.
+#
+# TODO: Revisit once the team decides on a pattern to make pure-Python
+# modules importable without _C (e.g., lazy imports or conditional guards).
 autodoc_mock_imports = ["torch", "torch_spyre"]
 
 autodoc_default_options = {
@@ -81,5 +86,5 @@ todo_include_todos = True
 
 # -- Suppress known non-critical warnings ------------------------------------
 suppress_warnings = [
-    "autodoc",  # torch_spyre is mocked; suppress all autodoc warnings (mocked_object, import_cycle)
+    "autodoc",  # torch_spyre is mocked; suppress all autodoc warnings
 ]

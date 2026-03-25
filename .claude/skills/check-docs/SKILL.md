@@ -82,15 +82,69 @@ internal implementation details into user-facing pages.
 
 ## 5. API Reference
 
-**Files:** `docs/source/api/torch_spyre.rst`, `torch_spyre/__init__.py`
+**Files:** `docs/source/api/torch_spyre.rst`, `torch_spyre/__init__.py`,
+`torch_spyre/streams.py`
 
-- Verify that the public API surface exported by `torch_spyre/__init__.py`
-  matches what autodoc will generate.
-- Check that new public modules (e.g., `torch_spyre/ops/`, `torch_spyre/device/`,
-  `torch_spyre/execution/`, `torch_spyre/memory/`, `torch_spyre/streams.py`)
-  are included in the API docs or intentionally excluded.
-- Verify type stubs (`torch_spyre/_C.pyi`, `torch_spyre/_hooks.pyi`) are
-  consistent with the C++ bindings.
+The API reference is **manually maintained** because `torch_spyre` cannot
+be imported during the Sphinx build (C++ extensions and Spyre hardware are
+required). This means the API docs will drift unless explicitly checked.
+
+When adding or updating API entries, follow the PyTorch `torch.cuda` API
+documentation style — use `.. function::`, `.. class::`, `.. method::`,
+and `.. attribute::` directives with full signatures, typed parameters,
+return types, and code examples where usage is non-obvious.
+
+### 5a. Device Management API
+
+Cross-reference the "Device Management" table in `torch_spyre.rst` against
+the functions exposed by `make_spyre_module()` in `torch_spyre/__init__.py`:
+
+- Check every `mod.xxx = lambda: impl.xxx()` line in `make_spyre_module()`.
+- If a new function was added to `_SpyreImpl` and wired into the module,
+  it must be added to the table in `torch_spyre.rst`.
+- If a function was removed or renamed, update or remove the corresponding
+  row.
+
+### 5b. Streams API
+
+Cross-reference the "Streams" tables in `torch_spyre.rst` against
+`torch_spyre/streams.py`:
+
+- Check the `__all__` list in `streams.py` — every exported name must
+  appear in the docs.
+- Check `Stream` class methods and properties — compare against the
+  Stream members table.
+- If new methods or properties were added to `Stream`, add them.
+- Verify the function signatures (parameter names, types, defaults)
+  match the code.
+
+### 5c. Random Number Generation
+
+- Check `manual_seed` and `manual_seed_all` signatures in `_SpyreImpl`
+  still match the docs.
+
+### 5d. Constants and Environment Variables
+
+- Verify `torch_spyre.constants.DEVICE_NAME` value matches the docs.
+- Cross-reference the environment variables table against:
+  - `torch_spyre/_inductor/logging_utils.py` (Spyre Inductor logging vars)
+  - `torch_spyre/__init__.py` (runtime vars like `TORCH_SPYRE_DEBUG`)
+  - `CLAUDE.md` env var table
+- If new env vars were added anywhere in the codebase, add them to the
+  API docs table.
+
+### 5e. New Public Modules
+
+Check if any new public modules have been added that are not yet in the
+API docs:
+
+- `torch_spyre/ops/` — eager ops and fallbacks
+- `torch_spyre/device/` — device interface
+- `torch_spyre/execution/` — async compile, kernel runner
+- `torch_spyre/memory/` — memory management
+
+For each, determine if it exposes public API that users would call
+directly. If so, add a section to `torch_spyre.rst`.
 
 ## 6. User Guide
 
