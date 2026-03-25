@@ -1,24 +1,11 @@
 # Torch Spyre Device Enablement
 
-This project contains the PyTorch layer C++ and Python code for supporting the [IBM Spyre device](./docs/source/architecture/spyre_accelerator.md) as a new device, named `spyre`, in PyTorch.
-
-## Documentation
-
-Full documentation: <https://torch-spyre.readthedocs.io/>
-
-To build the docs locally:
-
-```bash
-pip install -r docs/requirements.txt
-cd docs && make html
-```
-
-See the [Documentation Contributor Guide](./docs/README.md) for details.
+This project contains the PyTorch layer C++ and Python code for supporting the [IBM Spyre device](./docs/spyre.md) as a new device, named `spyre`, in PyTorch.
 
 ## Setup and Build
 
 Building this project currently requires a development build of the IBM Spyre Software Stack.
-Internal build instructions are available to IBM employees through internal documentation channels.
+If you are within IBM, instructions can be found in the internal `#aiu-inductor` slack channel.
 
 ## How to Try It Out
 

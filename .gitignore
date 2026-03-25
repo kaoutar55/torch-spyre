@@ -382,10 +382,6 @@ android/pytorch_android_torchvision/.cxx
 .stable_pyre_client
 .pyre_client
 
-# Claude Code (local settings only — .claude/skills/ is tracked)
-.claude/settings.local.json
-.bobmodes
-
 # codegen outputs
 codegen/outputs
 torch_spyre/csrc/external
