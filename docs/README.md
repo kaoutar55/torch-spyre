@@ -101,33 +101,18 @@ make clean
 
 ### Adding a new page
 
-1. Create a `.md` file in the appropriate section directory, e.g.:
-   ```
-   docs/source/compiler/my_new_topic.md
-   ```
+1. Create a `.md` file in the appropriate section directory,
+   e.g. `docs/source/compiler/my_new_topic.md`.
 2. Add the filename (without extension) to the section's `index.rst`
-   toctree:
-   ```rst
-   .. toctree::
-      :maxdepth: 2
-
-      architecture
-      my_new_topic   ← add here
-   ```
+   toctree, e.g. add `my_new_topic` below the existing entries.
 3. Rebuild to verify it appears in the sidebar.
 
 ### Adding a new section
 
 1. Create a new directory under `docs/source/`, e.g. `docs/source/internals/`.
 2. Add an `index.rst` in that directory with a title and toctree.
-3. Add the section to the root `docs/source/index.rst`:
-   ```rst
-   .. toctree::
-      :maxdepth: 2
-      :caption: Internals
-
-      internals/index
-   ```
+3. Add the section to the root `docs/source/index.rst` by adding
+   `internals/index` to the main toctree.
 
 ### Cross-references
 
@@ -148,7 +133,7 @@ See [Memory Hierarchy](../overview/dataflow_architecture.md#memory-hierarchy).
 Place image files in `docs/source/_static/images/` and embed them
 using the MyST `figure` directive:
 
-````markdown
+```text
 :::{figure} ../_static/images/my-diagram.png
 :alt: Description of the diagram
 :width: 80%
@@ -156,18 +141,16 @@ using the MyST `figure` directive:
 
 Caption text with attribution. *Source: ...*
 :::
-````
+```
 
 ### Code blocks
 
 Fenced code blocks with a language identifier are syntax-highlighted:
 
-````markdown
-```python
+```text
 import torch
 model = torch.compile(model, backend="spyre")
 ```
-````
 
 ---
 

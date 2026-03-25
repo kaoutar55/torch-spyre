@@ -75,17 +75,17 @@ see [Adding Operations](../compiler/adding_operations.md).
 | `torch.expand` | | | Spyre | Planned; not yet implemented |
 | `torch.narrow` / `torch.select` | | | Spyre | Planned; not yet implemented |
 | **Tensor Creation** | | | | |
-| `torch.ones` | | Y | Spyre | Custom decomposition |
-| `torch.full` | | Y | Spyre | Custom decomposition |
+| `torch.ones` | Y | Y | Spyre | Custom decomposition |
+| `torch.full` | Y | Y | Spyre | Custom decomposition |
 | **Utility** | | | | |
 | `torch.item` | Y | Y | Spyre | Copies to CPU, returns Python scalar |
 | **CPU Fallback** | | | | |
-| `torch.embedding` | | Y | CPU fallback | Runs on CPU, result transferred back |
-| `torch.arange` | | Y | CPU fallback | Runs on CPU, result transferred back |
-| `torch.sin` | | Y | CPU fallback | Runs on CPU, result transferred back |
-| `torch.cos` | | Y | CPU fallback | Runs on CPU, result transferred back |
-| `torch.tril` | | Y | CPU fallback | Runs on CPU, result transferred back |
-| `torch.triu` | | Y | CPU fallback | Runs on CPU, result transferred back |
+| `torch.embedding` | Y | Y | CPU fallback | Runs on CPU, result transferred back |
+| `torch.arange` | Y | Y | CPU fallback | Runs on CPU, result transferred back |
+| `torch.sin` | Y | Y | CPU fallback | Runs on CPU, result transferred back |
+| `torch.cos` | Y | Y | CPU fallback | Runs on CPU, result transferred back |
+| `torch.tril` | Y | Y | CPU fallback | Runs on CPU, result transferred back |
+| `torch.triu` | Y | Y | CPU fallback | Runs on CPU, result transferred back |
 
 > **Column key:**
 >
