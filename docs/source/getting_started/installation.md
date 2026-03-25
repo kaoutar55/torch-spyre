@@ -9,14 +9,6 @@ have progressed to a publicly available release.
 Watch this repository for updates or open an issue to express interest
 in early access.
 
-## Prerequisites
-
-Once available, Torch-Spyre will require:
-
-- Python >= 3.11
-- PyTorch ~= 2.10.0
-- IBM Spyre runtime libraries (not yet publicly released)
-
 ## Verify the Installation
 
 Once installed, verify your setup with:
