@@ -1,6 +1,6 @@
 # Generated scrum reports — do not commit
 scrum-profiling-*.md
-*.docx
+*.pdf
 charts/*.png
 
 # Keep these tracked

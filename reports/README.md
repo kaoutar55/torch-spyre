@@ -1,7 +1,7 @@
 # Profiling Scrum Reports
 
 Automated scrum status reports for the Spyre profiling workstream.
-Generates both a **Word document** (`.docx`) and **Markdown file** (`.md`)
+Generates both a **PDF** (`.pdf`) and **Markdown file** (`.md`)
 with embedded visualizations.
 
 ## What it does
@@ -48,7 +48,7 @@ pip install -r reports/requirements.txt
 Or individually:
 
 ```bash
-pip install matplotlib python-docx pillow
+pip install matplotlib fpdf2 pillow
 ```
 
 ## Usage
@@ -85,7 +85,7 @@ python reports/generate_report.py --data-dir /path/to/json-data
 | Flag | Default | Description |
 |------|---------|-------------|
 | `--days` | `7` | Number of days in the reporting period |
-| `--output-dir` | `reports/` | Where to write `.md`, `.docx`, and `charts/` |
+| `--output-dir` | `reports/` | Where to write `.md`, `.pdf`, and `charts/` |
 | `--data-dir` | `/tmp` | Directory for cached GitHub JSON data |
 
 ## Output
@@ -101,7 +101,7 @@ reports/
 │   ├── stale_issues.png
 │   └── workload_distribution.png
 ├── scrum-profiling-YYYY-MM-DD.md
-└── scrum-profiling-YYYY-MM-DD.docx
+└── scrum-profiling-YYYY-MM-DD.pdf
 ```
 
 Generated reports and charts are **gitignored** — they are local artifacts,
@@ -117,4 +117,4 @@ not committed to the repo.
 3. **Chart generation** — Uses `matplotlib` with the Spyre brand color
    palette to produce 5 PNG charts.
 4. **Report generation** — Writes a Markdown file with image references and
-   a Word document with embedded images and formatted tables.
+   a styled PDF with embedded charts, formatted tables, and a title page.

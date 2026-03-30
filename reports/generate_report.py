@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Generate a profiling scrum status report with charts, markdown, and Word output.
+"""Generate a profiling scrum status report with charts, markdown, and PDF output.
 
 Usage:
     # Collect data from GitHub first, then generate:
@@ -33,7 +33,6 @@ import argparse
 import json
 import os
 import subprocess
-import sys
 from datetime import datetime, timedelta, timezone
 
 import matplotlib
@@ -41,9 +40,7 @@ matplotlib.use("Agg")
 import matplotlib.colors as mcolors  # noqa: E402
 import matplotlib.pyplot as plt  # noqa: E402
 
-from docx import Document  # noqa: E402
-from docx.enum.text import WD_ALIGN_PARAGRAPH  # noqa: E402
-from docx.shared import Inches, Pt  # noqa: E402
+from fpdf import FPDF  # noqa: E402
 
 # --- Spyre brand colors ---
 C_ORANGE = "#e68244"
@@ -554,46 +551,216 @@ def generate_markdown(
     return md_path
 
 
-# --- Word document ---
-def generate_docx(
+# --- PDF document ---
+class ScrumPDF(FPDF):
+    """Custom PDF with header/footer for scrum reports."""
+
+    # Preferred TTF font paths — searched in order.
+    _FONT_PATHS = {
+        "darwin": {
+            "": "/System/Library/Fonts/Supplemental/Arial.ttf",
+            "B": "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
+            "I": "/System/Library/Fonts/Supplemental/Arial Italic.ttf",
+            "BI": "/System/Library/Fonts/Supplemental/Arial Bold Italic.ttf",
+        },
+        "linux": {
+            "": "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+            "B": "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+            "I": "/usr/share/fonts/truetype/dejavu/DejaVuSans-Oblique.ttf",
+            "BI": "/usr/share/fonts/truetype/dejavu/DejaVuSans-BoldOblique.ttf",
+        },
+    }
+
+    def __init__(self, title_text, subtitle_text):
+        super().__init__(orientation="P", unit="mm", format="A4")
+        self._title_text = title_text
+        self._subtitle_text = subtitle_text
+        self.set_auto_page_break(auto=True, margin=15)
+        self._register_fonts()
+
+    def _register_fonts(self):
+        """Register a Unicode TTF font family, with fallback to built-in."""
+        import platform
+        plat = platform.system().lower()
+        paths = self._FONT_PATHS.get(plat, {})
+        self._font_family = "Helvetica"  # fallback
+        if paths and os.path.exists(paths.get("", "")):
+            family = "ScrumFont"
+            for style, path in paths.items():
+                if os.path.exists(path):
+                    self.add_font(family, style, path)
+            self._font_family = family
+
+    def _set_font(self, style="", size=10):
+        self.set_font(self._font_family, style, size)
+
+    def header(self):
+        self._set_font("B", 9)
+        self.set_text_color(77, 92, 94)  # C_GRAY
+        self.cell(0, 6, self._title_text, align="L")
+        self.cell(0, 6, self._subtitle_text, align="R", new_x="LMARGIN", new_y="NEXT")
+        self.set_draw_color(200, 200, 200)
+        self.line(10, self.get_y(), 200, self.get_y())
+        self.ln(3)
+
+    def footer(self):
+        self.set_y(-15)
+        self._set_font("I", 8)
+        self.set_text_color(150, 150, 150)
+        self.cell(0, 10, f"Page {self.page_no()}/{{nb}}", align="C")
+
+    def section_heading(self, text):
+        self._set_font("B", 14)
+        self.set_text_color(77, 92, 94)
+        self.ln(4)
+        self.cell(0, 8, text, new_x="LMARGIN", new_y="NEXT")
+        self.set_draw_color(230, 130, 68)  # C_ORANGE
+        self.set_line_width(0.5)
+        self.line(10, self.get_y(), 80, self.get_y())
+        self.set_line_width(0.2)
+        self.ln(3)
+
+    def sub_heading(self, text):
+        self._set_font("B", 11)
+        self.set_text_color(115, 71, 97)  # C_MAUVE
+        self.ln(2)
+        self.cell(0, 7, text, new_x="LMARGIN", new_y="NEXT")
+        self.ln(1)
+
+    def body_text(self, text):
+        self._set_font("", 9)
+        self.set_text_color(50, 50, 50)
+        self.multi_cell(0, 5, text)
+
+    def bullet(self, text):
+        self._set_font("", 9)
+        self.set_text_color(50, 50, 50)
+        self.cell(5, 5, "\u2022 ")
+        self.multi_cell(0, 5, text, new_x="LMARGIN", new_y="NEXT")
+
+    def add_chart_image(self, charts_dir, name):
+        path = os.path.join(charts_dir, name)
+        if os.path.exists(path):
+            avail = 297 - 15 - self.get_y()  # A4 height minus margin
+            if avail < 50:
+                self.add_page()
+            self.image(path, x=10, w=190)
+            self.ln(3)
+
+    def add_data_table(self, headers, rows, col_widths=None):
+        if not col_widths:
+            total = 190
+            col_widths = [total / len(headers)] * len(headers)
+
+        # Check if table fits; if not, add a page
+        row_h = 6
+        needed = (1 + len(rows)) * row_h + 5
+        avail = 297 - 15 - self.get_y()
+        if needed > avail:
+            self.add_page()
+
+        # Header row
+        self._set_font("B", 8)
+        self.set_fill_color(230, 130, 68)  # C_ORANGE
+        self.set_text_color(255, 255, 255)
+        for j, h in enumerate(headers):
+            self.cell(col_widths[j], row_h, h, border=1, fill=True)
+        self.ln()
+
+        # Data rows
+        self._set_font("", 7)
+        self.set_text_color(50, 50, 50)
+        for i, row in enumerate(rows):
+            if i % 2 == 0:
+                self.set_fill_color(245, 245, 245)
+            else:
+                self.set_fill_color(255, 255, 255)
+            max_lines = 1
+            for j, val in enumerate(row):
+                txt = str(val)
+                # Estimate lines needed
+                char_w = col_widths[j] / 2.2  # approx chars per line at font 7
+                lines_needed = max(1, int(len(txt) / max(char_w, 1)) + 1)
+                max_lines = max(max_lines, lines_needed)
+            cell_h = row_h * max_lines
+
+            # Check page break
+            if self.get_y() + cell_h > 297 - 15:
+                self.add_page()
+                # Re-print header
+                self._set_font("B", 8)
+                self.set_fill_color(230, 130, 68)
+                self.set_text_color(255, 255, 255)
+                for j, h in enumerate(headers):
+                    self.cell(col_widths[j], row_h, h, border=1, fill=True)
+                self.ln()
+                self._set_font("", 7)
+                self.set_text_color(50, 50, 50)
+                if i % 2 == 0:
+                    self.set_fill_color(245, 245, 245)
+                else:
+                    self.set_fill_color(255, 255, 255)
+
+            for j, val in enumerate(row):
+                self.cell(col_widths[j], cell_h, str(val)[:60], border=1, fill=True)
+            self.ln()
+        self.ln(2)
+
+
+def generate_pdf(
     output_dir, charts_dir, today, start_date, epics, closed_in_period,
     opened_in_period, in_progress, needs_review, merged_in_period, draft_prs,
     blockers, non_epic_open, all_open_prs, end_date,
 ):
-    doc = Document()
-    doc.add_heading(f"Profiling Scrum Status \u2014 {today}", level=0)
-    subtitle = doc.add_paragraph(
-        f"Reporting period: {start_date.strftime('%Y-%m-%d')} to {today}"
+    title_text = f"Profiling Scrum Status \u2014 {today}"
+    subtitle_text = f"Reporting period: {start_date.strftime('%Y-%m-%d')} to {today}"
+
+    pdf = ScrumPDF(title_text, subtitle_text)
+    pdf.alias_nb_pages()
+    pdf.add_page()
+
+    # Title page
+    pdf._set_font("B", 22)
+    pdf.set_text_color(77, 92, 94)
+    pdf.ln(30)
+    pdf.cell(0, 12, "Profiling Scrum Status", align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf._set_font("", 14)
+    pdf.set_text_color(230, 130, 68)
+    pdf.cell(0, 10, today, align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf._set_font("", 11)
+    pdf.set_text_color(100, 100, 100)
+    pdf.cell(
+        0, 8, f"{start_date.strftime('%Y-%m-%d')}  to  {today}",
+        align="C", new_x="LMARGIN", new_y="NEXT",
     )
-    subtitle.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    pdf.ln(10)
 
-    def add_table(headers, rows):
-        table = doc.add_table(
-            rows=1 + len(rows), cols=len(headers), style="Light List Accent 1",
-        )
-        for j, h in enumerate(headers):
-            cell = table.rows[0].cells[j]
-            cell.text = h
-            for p in cell.paragraphs:
-                for run in p.runs:
-                    run.bold = True
-                    run.font.size = Pt(9)
-        for i, row in enumerate(rows):
-            for j, val in enumerate(row):
-                cell = table.rows[i + 1].cells[j]
-                cell.text = str(val)
-                for p in cell.paragraphs:
-                    for run in p.runs:
-                        run.font.size = Pt(8)
-
-    def add_chart(name):
-        path = os.path.join(charts_dir, name)
-        if os.path.exists(path):
-            doc.add_picture(path, width=Inches(6))
+    # Key Numbers box
+    pdf.set_fill_color(245, 245, 245)
+    pdf.set_draw_color(200, 200, 200)
+    box_x, box_y = 40, pdf.get_y()
+    pdf.rect(box_x, box_y, 130, 40, style="DF")
+    pdf.set_xy(box_x + 5, box_y + 3)
+    pdf.set_font("Helvetica", "B", 11)
+    pdf.set_text_color(77, 92, 94)
+    pdf.cell(120, 6, "Key Numbers", new_x="LMARGIN", new_y="NEXT")
+    pdf._set_font("", 10)
+    pdf.set_text_color(50, 50, 50)
+    key_nums = [
+        f"Open issues: {len(non_epic_open)} (+ {len(epics)} epics)",
+        f"Closed this period: {len(closed_in_period)}",
+        f"Open PRs (profiling): {len(all_open_prs)}",
+        f"PRs needing review: {len(needs_review)}",
+        f"PRs merged this period: {len(merged_in_period)}",
+    ]
+    for kn in key_nums:
+        pdf.set_x(box_x + 8)
+        pdf.cell(115, 5.5, f"\u2022  {kn}", new_x="LMARGIN", new_y="NEXT")
 
     # Epic Progress
-    doc.add_heading("Epic Progress", level=2)
-    add_chart("epic_progress.png")
+    pdf.add_page()
+    pdf.section_heading("Epic Progress")
+    pdf.add_chart_image(charts_dir, "epic_progress.png")
     epic_rows = []
     for e in epics:
         prog = (
@@ -605,10 +772,14 @@ def generate_docx(
             else "behind"
         )
         epic_rows.append([f"#{e['number']} {e['title']}", e["assignees"], prog, st])
-    add_table(["Epic", "Owner", "Progress", "Status"], epic_rows)
+    pdf.add_data_table(
+        ["Epic", "Owner", "Progress", "Status"],
+        epic_rows,
+        col_widths=[80, 45, 35, 30],
+    )
 
     # Issues Closed
-    doc.add_heading("Issues Closed", level=2)
+    pdf.section_heading("Issues Closed")
     if closed_in_period:
         rows = [
             [
@@ -619,12 +790,16 @@ def generate_docx(
                 closed_in_period, key=lambda x: x.get("closedAt", ""), reverse=True,
             )
         ]
-        add_table(["Issue", "Title", "Closed by", "Date"], rows)
+        pdf.add_data_table(
+            ["Issue", "Title", "Closed by", "Date"],
+            rows,
+            col_widths=[20, 80, 55, 35],
+        )
     else:
-        doc.add_paragraph("None this period.")
+        pdf.body_text("None this period.")
 
     # Issues Opened
-    doc.add_heading("Issues Opened", level=2)
+    pdf.section_heading("Issues Opened")
     if opened_in_period:
         rows = [
             [
@@ -635,12 +810,16 @@ def generate_docx(
                 opened_in_period, key=lambda x: x.get("createdAt", ""), reverse=True,
             )
         ]
-        add_table(["Issue", "Title", "Assignee", "Date"], rows)
+        pdf.add_data_table(
+            ["Issue", "Title", "Assignee", "Date"],
+            rows,
+            col_widths=[20, 80, 55, 35],
+        )
     else:
-        doc.add_paragraph("None this period.")
+        pdf.body_text("None this period.")
 
     # Issues In Progress
-    doc.add_heading("Issues In Progress", level=2)
+    pdf.section_heading("Issues In Progress")
     if in_progress:
         rows = [
             [
@@ -651,12 +830,16 @@ def generate_docx(
                 in_progress, key=lambda x: x.get("updatedAt", ""), reverse=True,
             )
         ]
-        add_table(["Issue", "Title", "Assignee", "Last Updated"], rows)
+        pdf.add_data_table(
+            ["Issue", "Title", "Assignee", "Last Updated"],
+            rows,
+            col_widths=[20, 80, 55, 35],
+        )
     else:
-        doc.add_paragraph("None this period.")
+        pdf.body_text("None this period.")
 
     # PRs Needing Review
-    doc.add_heading("PRs Needing Review", level=2)
+    pdf.section_heading("PRs Needing Review")
     if needs_review:
         rows = []
         for pr in sorted(needs_review, key=lambda x: x.get("createdAt", "")):
@@ -665,14 +848,18 @@ def generate_docx(
             )
             rows.append([
                 f"#{pr['number']}", pr["title"],
-                f"@{pr['author']['login']}", fmt_date(pr["createdAt"]), rr,
+                f"@{pr['author']['login']}", rr or fmt_date(pr["createdAt"]),
             ])
-        add_table(["PR", "Title", "Author", "Waiting Since", "Reviewers"], rows)
+        pdf.add_data_table(
+            ["PR", "Title", "Author", "Reviewers"],
+            rows,
+            col_widths=[20, 85, 45, 40],
+        )
     else:
-        doc.add_paragraph("None this period.")
+        pdf.body_text("None this period.")
 
     # PRs Merged
-    doc.add_heading("PRs Merged", level=2)
+    pdf.section_heading("PRs Merged")
     if merged_in_period:
         rows = [
             [
@@ -683,12 +870,16 @@ def generate_docx(
                 merged_in_period, key=lambda x: x.get("mergedAt", ""), reverse=True,
             )
         ]
-        add_table(["PR", "Title", "Author", "Merged"], rows)
+        pdf.add_data_table(
+            ["PR", "Title", "Author", "Merged"],
+            rows,
+            col_widths=[20, 85, 45, 40],
+        )
     else:
-        doc.add_paragraph("None this period.")
+        pdf.body_text("None this period.")
 
     # Draft PRs
-    doc.add_heading("Draft PRs", level=2)
+    pdf.section_heading("Draft PRs")
     if draft_prs:
         rows = [
             [
@@ -697,50 +888,37 @@ def generate_docx(
             ]
             for pr in draft_prs
         ]
-        add_table(["PR", "Title", "Author", "Created"], rows)
+        pdf.add_data_table(
+            ["PR", "Title", "Author", "Created"],
+            rows,
+            col_widths=[20, 85, 45, 40],
+        )
     else:
-        doc.add_paragraph("None this period.")
+        pdf.body_text("None this period.")
 
     # Blockers & Risks
-    doc.add_heading("Blockers & Risks", level=2)
-    add_chart("stale_issues.png")
+    pdf.add_page()
+    pdf.section_heading("Blockers & Risks")
+    pdf.add_chart_image(charts_dir, "stale_issues.png")
     for b in blockers:
         clean = b.lstrip("- ").lstrip(" ")
-        doc.add_paragraph(clean, style="List Bullet")
+        pdf.bullet(clean)
 
-    # Key Numbers
-    doc.add_heading("Key Numbers", level=2)
-    doc.add_paragraph(
-        f"Open issues: {len(non_epic_open)} (+ {len(epics)} epics)",
-        style="List Bullet",
-    )
-    doc.add_paragraph(
-        f"Closed this period: {len(closed_in_period)}", style="List Bullet",
-    )
-    doc.add_paragraph(
-        f"Open PRs (profiling): {len(all_open_prs)}", style="List Bullet",
-    )
-    doc.add_paragraph(
-        f"PRs needing review: {len(needs_review)}", style="List Bullet",
-    )
-    doc.add_paragraph(
-        f"PRs merged this period: {len(merged_in_period)}", style="List Bullet",
-    )
-
-    # Visualization appendix
-    doc.add_heading("Visualizations", level=2)
+    # Visualizations
+    pdf.add_page()
+    pdf.section_heading("Visualizations")
     for chart_name, chart_title in [
         ("issue_flow.png", "Issue Flow"),
         ("pr_pipeline.png", "PR Pipeline"),
         ("workload_distribution.png", "Workload Distribution"),
     ]:
-        doc.add_heading(chart_title, level=3)
-        add_chart(chart_name)
+        pdf.sub_heading(chart_title)
+        pdf.add_chart_image(charts_dir, chart_name)
 
-    docx_path = os.path.join(output_dir, f"scrum-profiling-{today}.docx")
-    doc.save(docx_path)
-    print(f"Word document saved: {docx_path}")
-    return docx_path
+    pdf_path = os.path.join(output_dir, f"scrum-profiling-{today}.pdf")
+    pdf.output(pdf_path)
+    print(f"PDF report saved: {pdf_path}")
+    return pdf_path
 
 
 # --- Main ---
@@ -901,7 +1079,7 @@ def main():
         stale_issues, non_epic_open, all_open_prs, end_date, blockers,
     )
 
-    generate_docx(
+    generate_pdf(
         output_dir, charts_dir, today, start_date, epics, closed_in_period,
         opened_in_period, in_progress, needs_review, merged_in_period, draft_prs,
         blockers, non_epic_open, all_open_prs, end_date,

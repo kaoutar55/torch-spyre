@@ -1,6 +1,6 @@
 ---
 name: scrum-profiling
-description: "Generate a scrum status report for profiling-related epics, issues, and PRs. Outputs a Word document (.docx) with charts and a markdown file (.md)."
+description: "Generate a scrum status report for profiling-related epics, issues, and PRs. Outputs a PDF with charts and a markdown file (.md)."
 ---
 
 # Profiling Scrum Status Report
@@ -69,7 +69,7 @@ moved to in-progress.
 After collecting all data, generate the report in **two formats**:
 
 1. **Markdown file** — `reports/scrum-profiling-{YYYY-MM-DD}.md`
-2. **Word document** — `reports/scrum-profiling-{YYYY-MM-DD}.docx`
+2. **PDF document** — `reports/scrum-profiling-{YYYY-MM-DD}.pdf`
 
 Create the `reports/` directory if it does not exist (at the repo root).
 
@@ -127,33 +127,29 @@ Write the markdown report to `reports/scrum-profiling-{YYYY-MM-DD}.md` using
 the template below. Embed chart image references using relative paths
 (e.g., `![Epic Progress](charts/epic_progress.png)`).
 
-### Step 3: Generate the Word document
+### Step 3: Generate the PDF document
 
-Write a Python script and run it with `python3` to generate the Word document
-using the `python-docx` library (`from docx import Document`). The script
-should:
+Write a Python script and run it with `python3` to generate the PDF document
+using the `fpdf2` library (`from fpdf import FPDF`). The script should:
 
-1. Create a new Document.
-2. Add a title: "Profiling Scrum Status — {date}"
-3. Add a subtitle paragraph: "Reporting period: {start_date} to {end_date}"
-4. For each section (Epics, Closed Issues, Opened Issues, etc.):
-   - Add a Heading (level 2)
-   - Insert the corresponding chart image using `doc.add_picture(path, width=Inches(6))`
-     right after the heading where a chart is relevant.
-   - Add a table with the data. Use `doc.add_table(rows, cols, style='Light List Accent 1')`.
-   - Bold the header row.
-5. Add the Blockers & Risks section as bullet points.
-6. Add the Key Numbers section as bullet points.
-7. Save to `reports/scrum-profiling-{YYYY-MM-DD}.docx`.
+1. Create an FPDF instance (A4, portrait).
+2. Add a title page with: report title, date, reporting period, key numbers box.
+3. For each section (Epics, Closed Issues, Opened Issues, etc.):
+   - Add a section heading with an orange underline accent.
+   - Insert the corresponding chart image (width=190mm) right after the
+     heading where a chart is relevant.
+   - Add a table with the data using alternating row colors and an orange
+     header row. Handle page breaks with header reprinting.
+4. Add the Blockers & Risks section as bullet points.
+5. Add a Visualizations appendix with the remaining charts.
+6. Save to `reports/scrum-profiling-{YYYY-MM-DD}.pdf`.
 
-Import pattern for python-docx:
+Import pattern for fpdf2:
 ```python
-from docx import Document
-from docx.shared import Inches, Pt, RGBColor
-from docx.enum.text import WD_ALIGN_PARAGRAPH
+from fpdf import FPDF
 ```
 
-### Chart placement in the Word document
+### Chart placement in the PDF document
 
 | Section | Chart to embed |
 |---------|----------------|
@@ -286,6 +282,6 @@ List any issues or PRs that are:
 After generating both files, confirm to the user:
 
 1. The markdown file path: `reports/scrum-profiling-{date}.md`
-2. The Word document path: `reports/scrum-profiling-{date}.docx`
+2. The PDF document path: `reports/scrum-profiling-{date}.pdf`
 3. The charts directory: `reports/charts/`
 4. A summary of key numbers from the report.
