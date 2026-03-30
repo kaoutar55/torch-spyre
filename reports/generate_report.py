@@ -179,10 +179,10 @@ def truncate(s, n=40):
 
 def status_emoji(pct):
     if pct > 60:
-        return ":green_circle:"
+        return "\U0001f7e2"  # green circle
     elif pct >= 20:
-        return ":yellow_circle:"
-    return ":red_circle:"
+        return "\U0001f7e1"  # yellow circle
+    return "\U0001f534"  # red circle
 
 
 PROFILING_KEYWORDS = {
@@ -383,9 +383,9 @@ def generate_markdown(
         )
     lines.append("")
     lines.append(
-        "Status emoji key: :green_circle: on track (>60%),"
-        " :yellow_circle: in progress (20-60%),"
-        " :red_circle: blocked or behind (<20%)"
+        "Status emoji key: \U0001f7e2 on track (>60%),"
+        " \U0001f7e1 in progress (20-60%),"
+        " \U0001f534 blocked or behind (<20%)"
     )
     lines.append("")
     lines.append("---")

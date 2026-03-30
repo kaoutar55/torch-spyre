@@ -176,7 +176,7 @@ from fpdf import FPDF
 |------|-------|----------|--------|
 | #{number} {title} | @{assignee} | {done}/{total} ({pct}%) | {status_emoji} |
 
-Status emoji key: :green_circle: on track (>60%), :yellow_circle: in progress (20-60%), :red_circle: blocked or behind (<20%)
+Status emoji key: 🟢 on track (>60%), 🟡 in progress (20-60%), 🔴 blocked or behind (<20%)
 
 ---
 
