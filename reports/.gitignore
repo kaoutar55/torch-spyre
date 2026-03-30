@@ -1,4 +1,9 @@
 # Generated scrum reports — do not commit
-*.md
+scrum-profiling-*.md
 *.docx
 charts/*.png
+
+# Keep these tracked
+!README.md
+!requirements.txt
+!generate_report.py
