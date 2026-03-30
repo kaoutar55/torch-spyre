@@ -1,0 +1,4 @@
+# Generated scrum reports — do not commit
+*.md
+*.docx
+charts/*.png
