@@ -74,11 +74,14 @@ Device Management
 Random Number Generation
 ------------------------
 
-.. function:: torch.spyre.manual_seed(seed)
+.. function:: torch.spyre.manual_seed(seed, device=None)
 
-   Sets the seed for generating random numbers on the current Spyre device.
+   Sets the seed for generating random numbers on the specified Spyre device.
 
    :param int seed: The desired seed.
+   :param device: Device index to set the seed on. If ``None``, uses the
+       current device.
+   :type device: int, optional
 
 .. function:: torch.spyre.manual_seed_all(seed)
 
@@ -380,3 +383,9 @@ Environment Variables
      - Verbose PyTorch Inductor logging
    * - ``TORCH_COMPILE_DEBUG=1``
      - Dump Inductor debug artifacts
+   * - ``TORCH_SENDNN_LOG``
+     - SendNN library logging level (default: ``CRITICAL``)
+   * - ``DT_DEEPRT_VERBOSE``
+     - DeepTools runtime verbosity (default: ``-1``, disabled)
+   * - ``DTLOG_LEVEL``
+     - DeepTools log level (default: ``error``)

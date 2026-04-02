@@ -125,7 +125,7 @@ See [Compiler Architecture](../compiler/architecture.md) for details.
 Link to a specific section heading by its anchor:
 
 ```markdown
-See [Memory Hierarchy](../overview/dataflow_architecture.md#memory-hierarchy).
+See [Memory Hierarchy](../architecture/dataflow_architecture.md#memory-hierarchy).
 ```
 
 ### Figures
