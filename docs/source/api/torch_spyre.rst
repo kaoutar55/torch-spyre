@@ -74,6 +74,16 @@ Device Management
 Random Number Generation
 ------------------------
 
+**Preferred (device-agnostic):** Use the PyTorch ``torch.accelerator`` API so
+that your code is portable across backends (CUDA, Spyre, etc.):
+
+.. code-block:: python
+
+   torch.accelerator.manual_seed(42)      # current device
+   torch.accelerator.manual_seed_all(42)  # all devices
+
+**Backend-specific alternative:**
+
 .. function:: torch.spyre.manual_seed(seed, device=None)
 
    Sets the seed for generating random numbers on the specified Spyre device.
