@@ -134,14 +134,21 @@ using the `fpdf2` library (`from fpdf import FPDF`). The script should:
 
 1. Create an FPDF instance (A4, portrait).
 2. Add a title page with: report title, date, reporting period, key numbers box.
-3. For each section (Epics, Closed Issues, Opened Issues, etc.):
-   - Add a section heading with an orange underline accent.
-   - Insert the corresponding chart image (width=190mm) right after the
-     heading where a chart is relevant.
-   - Add a table with the data using alternating row colors and an orange
-     header row. Handle page breaks with header reprinting.
-4. Add the Blockers & Risks section as bullet points.
-5. Add a Visualizations appendix with the remaining charts.
+3. **Part 1 — Current Sprint Focus** (the scrum call section):
+   - "Epics In Progress" with Chart 1 and table.
+   - "Issues In Progress" with table (flag stale issues).
+   - "PRs Needing Review" with table.
+   - "Draft PRs" with table.
+   - "Blockers & Risks" with Chart 5 and bullet points.
+4. **Part 2 — Overall Status** (the full picture):
+   - "Key Numbers" summary box with Chart 2 (issue flow) and Chart 4
+     (workload distribution).
+   - "All Epics" with full epic table.
+   - "Issues Closed This Period" with table.
+   - "Issues Opened This Period" with table.
+   - "PRs Merged This Period" with Chart 3 (PR pipeline) and table.
+5. For all sections: use orange underline accent headings, alternating row
+   colors, orange header rows, and handle page breaks with header reprinting.
 6. Save to `reports/scrum-profiling-{YYYY-MM-DD}.pdf`.
 
 Import pattern for fpdf2:
@@ -151,13 +158,13 @@ from fpdf import FPDF
 
 ### Chart placement in the PDF document
 
-| Section | Chart to embed |
-|---------|----------------|
-| Epic Progress | Chart 1 (epic progress bars) |
-| Issue summary (after Key Numbers) | Chart 2 (issue flow) |
-| PRs summary (after Key Numbers) | Chart 3 (PR pipeline) |
-| After Key Numbers | Chart 4 (workload distribution) |
-| Blockers & Risks | Chart 5 (stale issues age) |
+| Section | Part | Chart to embed |
+|---------|------|----------------|
+| Epics In Progress | Part 1 | Chart 1 (epic progress bars) |
+| Blockers & Risks | Part 1 | Chart 5 (stale issues age) |
+| Key Numbers | Part 2 | Chart 2 (issue flow) |
+| Key Numbers | Part 2 | Chart 4 (workload distribution) |
+| PRs Merged This Period | Part 2 | Chart 3 (PR pipeline) |
 
 ## Markdown Output Template
 
@@ -168,39 +175,34 @@ from fpdf import FPDF
 
 ---
 
-## Epic Progress
+# Part 1 — Current Sprint Focus
+
+This section covers what is actively being worked on right now: in-progress
+epics, issues with assignees, and PRs under review. Use this section during
+the scrum call to discuss status, blockers, and next steps.
+
+## Epics In Progress
+
+Epics that have at least one checked sub-task but are not yet complete.
 
 ![Epic Progress](charts/epic_progress.png)
 
 | Epic | Owner | Progress | Status |
 |------|-------|----------|--------|
-| #{number} {title} | @{assignee} | {done}/{total} ({pct}%) | {status_emoji} |
+| [#{number}](https://github.com/torch-spyre/torch-spyre/issues/{number}) {title} | @{assignee} | {done}/{total} ({pct}%) | {status_emoji} |
 
 Status emoji key: 🟢 on track (>60%), 🟡 in progress (20-60%), 🔴 blocked or behind (<20%)
 
 ---
 
-## Issues Closed
-
-| Issue | Title | Closed by | Date |
-|-------|-------|-----------|------|
-| #{number} | {title} | @{assignee} | {closed_date} |
-
----
-
-## Issues Opened
-
-| Issue | Title | Opened by | Date |
-|-------|-------|-----------|------|
-| #{number} | {title} | @{author} | {created_date} |
-
----
-
 ## Issues In Progress
 
-| Issue | Title | Assignee | Last updated |
-|-------|-------|----------|--------------|
-| #{number} | {title} | @{assignee} | {updated_date} |
+Open issues that have an assignee and recent activity within the reporting
+period. Stale issues (no update in 14+ days) are flagged.
+
+| Issue | Title | Assignee | Last updated | Notes |
+|-------|-------|----------|--------------|-------|
+| [#{number}](https://github.com/torch-spyre/torch-spyre/issues/{number}) | {title} | @{assignee} | {updated_date} | {stale_flag} |
 
 ---
 
@@ -208,17 +210,9 @@ Status emoji key: 🟢 on track (>60%), 🟡 in progress (20-60%), 🔴 blocked 
 
 | PR | Title | Author | Waiting since | Reviewers requested |
 |----|-------|--------|---------------|---------------------|
-| #{number} | {title} | @{author} | {created_date} | @{reviewers} |
+| [#{number}](https://github.com/torch-spyre/torch-spyre/pull/{number}) | {title} | @{author} | {created_date} | @{reviewers} |
 
 Flag any PR that has been waiting for review for more than 3 business days.
-
----
-
-## PRs Merged
-
-| PR | Title | Author | Merged |
-|----|-------|--------|--------|
-| #{number} | {title} | @{author} | {merged_date} |
 
 ---
 
@@ -226,7 +220,7 @@ Flag any PR that has been waiting for review for more than 3 business days.
 
 | PR | Title | Author | Created |
 |----|-------|--------|---------|
-| #{number} | {title} | @{author} | {created_date} |
+| [#{number}](https://github.com/torch-spyre/torch-spyre/pull/{number}) | {title} | @{author} | {created_date} |
 
 ---
 
@@ -239,6 +233,11 @@ List any issues or PRs that are:
 
 ---
 
+# Part 2 — Overall Status
+
+Full picture of the profiling workstream for the reporting period: everything
+opened, closed, merged, and workload distribution.
+
 ## Key Numbers
 
 - **Open issues:** {count}
@@ -246,6 +245,40 @@ List any issues or PRs that are:
 - **Open PRs:** {count}
 - **PRs needing review:** {count}
 - **PRs merged this period:** {count}
+
+---
+
+## All Epics
+
+Complete list of profiling epics (including those not yet started).
+
+| Epic | Owner | Progress | Status |
+|------|-------|----------|--------|
+| [#{number}](https://github.com/torch-spyre/torch-spyre/issues/{number}) {title} | @{assignee} | {done}/{total} ({pct}%) | {status_emoji} |
+
+---
+
+## Issues Closed This Period
+
+| Issue | Title | Closed by | Date |
+|-------|-------|-----------|------|
+| [#{number}](https://github.com/torch-spyre/torch-spyre/issues/{number}) | {title} | @{assignee} | {closed_date} |
+
+---
+
+## Issues Opened This Period
+
+| Issue | Title | Opened by | Date |
+|-------|-------|-----------|------|
+| [#{number}](https://github.com/torch-spyre/torch-spyre/issues/{number}) | {title} | @{author} | {created_date} |
+
+---
+
+## PRs Merged This Period
+
+| PR | Title | Author | Merged |
+|----|-------|--------|--------|
+| [#{number}](https://github.com/torch-spyre/torch-spyre/pull/{number}) | {title} | @{author} | {merged_date} |
 
 ---
 
@@ -263,6 +296,25 @@ List any issues or PRs that are:
 ### Stale Issues
 ![Stale Issues](charts/stale_issues.png)
 ````
+
+## Hyperlinks
+
+All issue and PR numbers in both the markdown and PDF reports **must** be
+clickable hyperlinks to GitHub.
+
+### Markdown
+
+Use the format `[#123](https://github.com/torch-spyre/torch-spyre/issues/123)`
+for issues and `[#123](https://github.com/torch-spyre/torch-spyre/pull/123)`
+for PRs. Apply this everywhere a `#{number}` appears in tables, headings, or
+body text.
+
+### PDF
+
+Use `fpdf2` link support to make issue/PR numbers clickable in the PDF as
+well. When writing a cell or text that contains a `#{number}` reference,
+use `pdf.cell(..., link="https://github.com/torch-spyre/torch-spyre/issues/{number}")`.
+Style linked text in blue (`#0075ca`) so readers can see they are clickable.
 
 ## Formatting Rules
 
