@@ -143,13 +143,15 @@ with a standard Markdown image link:
 For richer formatting (captions, sizing, alignment), use the MyST
 `figure` directive:
 
-    :::{figure} ../_static/images/my-diagram.png
-    :alt: Description of the diagram
-    :width: 80%
-    :align: center
+```
+:::{figure} ../_static/images/my-diagram.png
+:alt: Description of the diagram
+:width: 80%
+:align: center
 
-    Caption text with attribution. *Source: ...*
-    :::
+Caption text with attribution. *Source: ...*
+:::
+```
 
 ### Code blocks
 
