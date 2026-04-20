@@ -30,8 +30,9 @@ push to fork → open PR into upstream `main` → team review → merge.
 
 ## Step 1: Fork and Clone
 
-**Fork once.** Go to `https://github.com/torch-spyre/torch-spyre` and click
-**Fork**. This creates `https://github.com/<your-username>/torch-spyre`.
+**Fork once.** Go to the [torch-spyre repo](https://github.com/torch-spyre/torch-spyre)
+on GitHub and click **Fork**. This creates
+`https://github.com/<your-username>/torch-spyre`.
 
 **Clone your fork:**
 
@@ -86,10 +87,16 @@ reflects what area of the profiler you're working on:
 | `profiler/mem-<description>` | `profiler/mem-vf-block-allocator` | Memory profiling (any layer) |
 | `profiler/docs-<description>` | `profiler/docs-user-guide` | Documentation, examples |
 | `profiler/test-<description>` | `profiler/test-chrome-trace-export` | Test additions |
+| `profiler/feat-<description>` | `profiler/feat-provenance-tracking` | Feature enhancements that grow across multiple PRs |
 | `profiler/fix-<description>` | `profiler/fix-fallback-no-libaiupti` | Bug fixes |
 
 Keep branch names short but descriptive. Someone reading `git branch -r`
 should understand what you're working on without opening the PR.
+
+**Keep the `<description>` between 3 and 5 hyphen-separated words.**
+`cmake-libaiupti` is a good length; `sol` is too terse to understand from
+`git branch -r`; `tex-scratchpad-vram-sol-average` is too verbose — shorten
+or split the work.
 
 ---
 
@@ -129,9 +136,9 @@ git push -u origin profiler/api-module-scaffold
 
 ## Step 4: Keep Your Branch Up to Date (Rebase)
 
-torch-spyre is under active development. Before opening a PR (and
-periodically while working), rebase your branch onto the latest upstream
-`main`:
+torch-spyre is under active development. **Rebase daily** (or at least
+every 2–3 days) while a task is in progress, and always before opening a
+PR, so you're working against the latest upstream `main`:
 
 ```bash
 git fetch upstream
@@ -165,9 +172,14 @@ into `torch-spyre/torch-spyre:main`.
 
 - Title starts with `[profiler]`
 - Description explains what changed and why
+- Description links the issue it addresses (`Fixes #<n>` if it closes the
+  issue, `Addresses #<n>` for partial work)
 - Branch is rebased onto latest upstream `main` (no merge conflicts)
-- Tests pass (at minimum, Tier 1 CPU-only tests)
-- At least one profiling team member reviews before merge
+- Tests: either add new tests under `tests/profiler/`, or name the existing
+  test file and command that exercises the change (e.g.,
+  `pytest tests/profiler/test_spyre_profiler.py -k activity`)
+- Reviewed by at least one profiling squad lead (@kaoutar55 or @ppnaik1890)
+  and one other team member before merge
 
 ### Keep PRs Small and Focused
 
@@ -250,6 +262,14 @@ each conflict, then:
 ```bash
 git add <resolved-files>
 git rebase --continue
+```
+
+If you hit conflicts on commits you didn't author (because your branch
+picked them up from a shared base that moved), try replaying only the
+commits unique to your branch:
+
+```bash
+git rebase --fork-point upstream/main
 ```
 
 If it gets too messy, abort and start over:
