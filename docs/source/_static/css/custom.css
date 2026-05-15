@@ -5,6 +5,28 @@
     max-width: 960px;
 }
 
+/* Wide figures (sequence diagrams, dense architecture) stay inside the
+   content column but scroll horizontally so text stays at natural size. */
+figure.scrollable-figure {
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    /* Hint that the figure scrolls on touch devices. */
+    -webkit-overflow-scrolling: touch;
+}
+figure.scrollable-figure img {
+    max-width: none;
+    width: auto;
+    height: auto;
+    display: block;
+}
+figure.scrollable-figure figcaption {
+    /* Caption stays aligned with the content column, not the scroll extent. */
+    position: sticky;
+    left: 0;
+    max-width: 100%;
+}
+
 /* Style inline code to stand out */
 code.literal {
     background-color: #f5f5f5;
