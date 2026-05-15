@@ -23,6 +23,14 @@ workloads running on the Spyre accelerator. The full design of the
 planned toolkit is in
 [RFC 0601 — Spyre Profiling Toolkit][rfc-0601].
 
+:::{figure} ../../_static/images/profiling-full-stack.png
+:alt: Full-stack profiling architecture spanning PyTorch, torch-spyre, runtime, and hardware
+:align: center
+:figclass: scrollable-figure
+
+The profiling stack has five layers: the `torch.profiler` API, the PyTorch framework (Kineto and `REGISTER_PRIVATEUSE1_PROFILER`), the torch-spyre C++ integration (`SpyreActivityProfiler`, `ProfilerStubs`, memory tracking, compiler hooks), the Spyre runtime (`libaiupti`, Flex runtime, allocator), and the device driver and hardware. Post-processing tools (`aiu-trace-analyzer`, `aiu-smi`, Perfetto) consume the emitted traces. The contributor documentation has a detailed [stack walkthrough](../../contributing/profiling.md#profiler-stack).
+:::
+
 The in-tree `torch_spyre.profiler` package is currently a scaffold —
 `torch_spyre.profiler.is_available()` returns `False`, and there is no
 public API yet. Profiling today goes through `torch.profiler` plus the
@@ -79,8 +87,10 @@ RFC 0601 lands.
   overview
 - [RFC 0601][rfc-0601] — full profiling toolkit design
 - [Contributing to the Profiler](../../contributing/profiling.md) —
-  branch / commit conventions, build flag, test layout, and review
-  process for the profiling squad
+  branch / commit conventions, build flag, test layout, review process,
+  and the [Profiler stack](../../contributing/profiling.md#profiler-stack)
+  (the runtime dispatch chain through `torch.profiler`, Kineto,
+  `SpyreActivityProfiler`, libaiupti, and the Flex `PROFILER_*` macros)
 
 :::{admonition} Work in Progress
 :class: warning

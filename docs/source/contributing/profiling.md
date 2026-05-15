@@ -27,6 +27,60 @@ several:
 
 Plan PRs accordingly. See [PR scope](#pr-scope) below.
 
+## Profiler stack
+
+At runtime the layers above form a single dispatch chain. Every
+device-side event in a `torch.profiler` trace follows this path from top
+to bottom:
+
+```text
+torch.profiler.profile(activities=[CPU, PrivateUse1])   ← user API
+        │
+        ▼
+LibKineto                                                ← PyTorch trace collector
+        │  (activates the PrivateUse1 backend)
+        ▼
+REGISTER_PRIVATEUSE1_PROFILER → SpyreActivityProfiler    ← torch-spyre C++ glue
+        │  (implements IActivityProfiler + ProfilerStubs:
+        │   record(), elapsed(), synchronize(), enabled())
+        ▼
+libaiupti                                                ← Profiling Tools Interface
+        │  (kernel + memory counter API)
+        ▼
+Flex Runtime:  PROFILER_START / PROFILER_STOP / ...      ← device-side macros
+```
+
+Nothing in PyTorch calls Flex's `PROFILER_*` macros directly. Kineto
+routes PrivateUse1 activities to `SpyreActivityProfiler`, which calls
+libaiupti, which is implemented on top of the Flex macros. The mapping
+from PyTorch hook to Flex macro below identifies the correct layer for a
+given change.
+
+:::{figure} ../_static/images/profiling-privateuse1-sequence.png
+:alt: Sequence diagram showing a single kernel record flowing through the profiler stack
+:align: center
+:figclass: scrollable-figure
+
+The PrivateUse1 path for a single kernel. `torch.profiler.profile()` triggers Kineto's `prepareTrace()` and `onKinetoInit()`, which instantiate a `SpyreActivityProfiler` via `REGISTER_PRIVATEUSE1_PROFILER`. Each kernel dispatch calls `ProfilerStubs::record()` → libaiupti → Flex runtime, and the Flex runtime reads control-block timestamps from the hardware. On context exit, `synchronize()` drains in-flight operations, and the collected activities are returned via `prof.key_averages()` or `prof.export_chrome_trace()`.
+:::
+
+### Flex macro to PyTorch hook mapping
+
+| Flex macro | What drives it from PyTorch |
+|---|---|
+| `PROFILER_START` / `PROFILER_STOP` | `ProfilerStubs::record()` fires once per kernel dispatch while a `torch.profiler` context is active. The `mask` argument selects the backend (aiupti vs. chained events) so Kineto's `PrivateUse1` activity can coexist with Flex-internal tracing. |
+| `PROFILER_IS_ENABLED` / `PROFILER_BACKEND_IS_ENABLED` | Back `ProfilerStubs::enabled()` so the runtime can skip instrumentation cost when no `torch.profiler` context is active. |
+| `PROFILER_START_ALL` | Called when the user passes `ProfilerActivity.PrivateUse1` without further filtering, causing Kineto to enable every backend. |
+| `PROFILER_CREATE_DURATION` / `PROFILER_SET_END_TIMESTAMP` | Required because the Spyre runtime is asynchronous: control-block timestamps arrive after the kernel returns to PyTorch. These macros let the runtime backfill accurate start and end times into events that Kineto has already received, so `prof.key_averages().table()` reports device time rather than host dispatch time. |
+| `PROFILER_ADD_ATTRIBUTE` | Populates the key/value metadata written to Chrome-trace `args` fields (op name, shapes, provenance handles), which `aiu-trace-analyzer` and Perfetto consume. |
+| `PROFILER_SUBMIT_PENDING_REQUEST` | Drains queued requests once they complete, matching `ProfilerStubs::synchronize()` which Kineto calls on profiler context exit. |
+
+Between them, the four `START` flavors (aiupti only, with and without
+unit tag, event chaining) and four `STOP` flavors (simple, aiupti with
+and without data, aiupti memory) cover both kernel events and memory
+events. Kineto uses kernel events for the timeline view and memory
+events for `profile_memory=True`.
+
 ## Branch naming
 
 Use `profiler/<area>-<short-description>` so a `git branch -r` listing
