@@ -431,17 +431,22 @@ assigns all 16 cores to `M`. Final split: `{M: 16, N: 1, K: 2}`.
 ### Core grid
 
 The 32 cores form a 16 × 2 grid: 16 along M, paired up across the K
-split. Each row of the grid (cores `i` and `i+16`) accumulates one
-M-slice's PSUM:
+split. The codegen-side permutation in `codegen/superdsc.py` (see
+[Codegen pairing for K-splits](#codegen-pairing-for-k-splits))
+arranges the K-collaborators on adjacent ring positions, so
+`(c0, c1)` accumulate M-slice 0, `(c2, c3)` accumulate M-slice 1,
+and so on:
 
 ```text
 M-slice:    0    1    2    3    4    5    6    7   ...   15
          ┌────┬────┬────┬────┬────┬────┬────┬────┬─────┬────┐
-K = 0..  │ c0 │ c1 │ c2 │ c3 │ c4 │ c5 │ c6 │ c7 │ ... │c15 │
-K = 1..  │c16 │c17 │c18 │c19 │c20 │c21 │c22 │c23 │ ... │c31 │
+K = 0..  │ c0 │ c2 │ c4 │ c6 │ c8 │c10 │c12 │c14 │ ... │c30 │
+K = 1..  │ c1 │ c3 │ c5 │ c7 │ c9 │c11 │c13 │c15 │ ... │c31 │
          └────┴────┴────┴────┴────┴────┴────┴────┴─────┴────┘
                                                           ↑
-                                          PSUM(c_i, c_{i+16}) → row i
+                              PSUM(c_{2i}, c_{2i+1}) → row i
+                              (K-pair on adjacent ring positions,
+                               so the PSUM hop count is 1)
 ```
 
 ### A small-M, narrow-N counterexample
@@ -507,14 +512,12 @@ is tracked in the [scratchpad planning](scratchpad_planning.md) doc.
   because pricing the broadcast of the shared weight needs weight-rank
   awareness the current cost function does not have. Those bmms fall
   through to Pass 3.
-- Multi-K reductions are not modelled by the cost function.
 - Padding is approximated rather than retrieved from the layout (FIXME
-  in `adjust_it_space_for_sticks`).
+  in `adjust_it_space_for_sticks`). Improved padding handling is being
+  added in [#2359](https://github.com/torch-spyre/torch-spyre/pull/2359).
 
 **Potential future enhancements:**
 
-- Retrieve the correct padding from the layout instead of the current
-  simplifying assumption.
 - Add a graph-aware co-optimisation pass that aligns splits across
   adjacent ops to grow the LX legal-reuse set (see
   [Scratchpad planning](#scratchpad-planning)).
