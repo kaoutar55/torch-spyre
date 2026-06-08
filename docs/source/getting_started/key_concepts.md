@@ -263,8 +263,9 @@ Each box is a distinct IR. The pass between two boxes is named above the arrow: 
   and the compute op. Artifacts are cached through the standard
   `torch.compile` cache.
 - **KTIR** is the planned successor, an MLIR-based dialect designed as a
-  community specification for dataflow accelerators. See the
-  [KTIR page](../compiler/ktir.md).
+  community specification for dataflow accelerators. See
+  [RFC 0682](https://github.com/torch-spyre/rfcs/blob/main/0682-KtirSpec/0682-KtirSpecRFC.md)
+  for the specification.
 - **SpyreCode** is the runtime-side contract: a `JobPlan` of ordered
   steps (host-to-device transfers, compute, host-side program
   correction, device-to-host transfers) that `SpyreStream::launch`

@@ -706,7 +706,7 @@ two open-source companion projects are up: a CPU interpreter at
 [torch-spyre/ktir-cpu](https://github.com/torch-spyre/ktir-cpu) and an MLIR parser at
 [torch-spyre/ktir-mlir-frontend](https://github.com/torch-spyre/ktir-mlir-frontend). The
 remaining work is the backend lowering path that lets KTIR replace SuperDSC in the production
-flow. See the [KTIR page](../compiler/ktir.md) for the design.
+flow.
 
 **Scratchpad optimization.** The scratchpad planner is in-tree under
 `torch_spyre/_inductor/scratchpad/`. The default greedy solver has shipped along with first-fit
