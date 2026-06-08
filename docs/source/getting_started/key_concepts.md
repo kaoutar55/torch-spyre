@@ -250,10 +250,13 @@ LoopLevel IR (before codegen). Gray boxes are PyTorch-standard.
 
 The compilation flow runs through several IRs in sequence:
 
-```text
-Torch IR (FX graph) → ATen IR (post-AOTAutograd) → LoopLevel IR (Inductor)
-                            → SuperDSC / KTIR  → SpyreCode JobPlan (runtime)
-```
+:::{figure} ../_static/images/getting-started/ir-levels.svg
+:alt: Five IRs left-to-right with the producing pass labelled above each arrow
+:width: 100%
+:align: center
+
+Each box is a distinct IR. The pass between two boxes is named above the arrow: Dynamo, AOTAutograd, Inductor, codegen, and prepareKernel.
+:::
 
 - **SuperDSC** is the current Spyre kernel IR. It is JSON. One artifact
   per scheduled kernel encodes the per-core schedule, tensor descriptors,
