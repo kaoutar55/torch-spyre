@@ -1,10 +1,10 @@
 # KTIR (Kernel Tile IR)
 
 KTIR is an MLIR dialect for tiled, multi-core accelerator kernels. It
-generalises ideas from torch-spyre's existing SuperDSC IR into a
-community specification for any dataflow accelerator with scratchpad
-memory and compile-time core partitioning. The dialect is the planned
-successor to SuperDSC in the torch-spyre compilation pipeline.
+extends torch-spyre's existing SuperDSC IR into a community
+specification for any dataflow accelerator with scratchpad memory and
+compile-time core partitioning. The dialect is the planned successor
+to SuperDSC in the torch-spyre compilation pipeline.
 
 :::{admonition} Status
 :class: note
@@ -37,7 +37,7 @@ PyTorch model
     │
 FX graph → ATen IR → LoopLevel IR
     │
-    ▼  emit Triton- or KTIR-shaped kernels
+    ▼  emit KTIR-shaped kernels
     │
 KTIR  (this dialect)
     │
@@ -75,7 +75,7 @@ sitting in a single HBM region.
 A 1024-element vector add over 32 cores looks like this in KTDP. Each
 core picks up a 32-element slice based on its grid coordinate:
 
-```mlir
+```
 func.func @add(%A: index, %B: index, %Out: index)
     attributes {grid = [32]} {
   %c32 = arith.constant 32 : index
@@ -128,11 +128,10 @@ tests signals that a gap has been closed and the marker should be
 promoted to a regular test. The full gap analysis is at
 `docs/gap_analysis.md` in the ktir-cpu repository.
 
-ktir-cpu is also positioned as a feedback loop for AI-driven compiler
-development: a frontend pass can emit candidate kernels, run them
-through the interpreter, and use correctness output and the latency
-report to score them. Determinism and CPU-only execution are what
-makes this feedback loop useable in practice.
+ktir-cpu also supports AI-driven compiler development: a frontend
+pass can emit candidate kernels, run them through the interpreter,
+and use correctness output and the latency report to score them.
+Determinism and CPU-only execution make this feedback loop practical.
 
 ## Why an MLIR dialect
 
@@ -142,16 +141,16 @@ The constraints that shape KTIR's design, drawn from RFC 0682:
   partitioned at compile time. The dialect models this with a fixed
   `grid` attribute and a per-core access tile. There is no GPU-style
   thread-block dispatch.
-- **Explicit scratchpad.** Per-core LX is small and software-managed.
-  KTIR describes staged transfers explicitly through the three-step
-  access pattern, instead of an implicit cache hierarchy.
+- **Explicit scratchpad.** Per-core LX is small, and the compiler
+  manages its allocation (there is no hardware cache). KTIR describes
+  staged transfers explicitly through the three-step access pattern
+  instead of relying on an implicit cache hierarchy.
 - **Cross-stack reuse.** MLIR provides existing dialects (`arith`,
   `math`, `linalg`, `scf`) for the inner kernel body. KTDP only adds
   the Spyre-specific access primitives.
 - **Multiple frontends.** A community spec lets multiple compilers
-  target the same dialect. The torch-spyre Inductor backend is one
-  consumer. Future Triton-driven or hand-written frontends can target
-  the same lowering path.
+  target the same dialect. The torch-spyre Inductor backend is the
+  primary consumer today.
 
 ## See also
 
