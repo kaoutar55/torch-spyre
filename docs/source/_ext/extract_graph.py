@@ -53,7 +53,7 @@ def _normalize_op_name(raw):
         return None
     for prefix in ("torch.ops.", "torch._ops.ops."):
         if raw.startswith(prefix):
-            raw = raw[len(prefix):]
+            raw = raw[len(prefix) :]
             break
     return raw
 
@@ -112,25 +112,31 @@ def extract_decompositions(filepath):
                 if isinstance(dec, ast.Call) and dec.args:
                     ops = _extract_list_ops(dec.args[0])
                     decomp_id = f"decomp::{node.name}"
-                    nodes.append({
-                        "id": decomp_id,
-                        "label": node.name,
-                        "type": "decomposition",
-                        "source_file": rel_path,
-                        "line": node.lineno,
-                    })
+                    nodes.append(
+                        {
+                            "id": decomp_id,
+                            "label": node.name,
+                            "type": "decomposition",
+                            "source_file": rel_path,
+                            "line": node.lineno,
+                        }
+                    )
                     for op in ops:
                         op_id = f"op::{op}"
-                        nodes.append({
-                            "id": op_id,
-                            "label": op,
-                            "type": "op",
-                        })
-                        edges.append({
-                            "source": op_id,
-                            "target": decomp_id,
-                            "relationship": "decomposed_by",
-                        })
+                        nodes.append(
+                            {
+                                "id": op_id,
+                                "label": op,
+                                "type": "op",
+                            }
+                        )
+                        edges.append(
+                            {
+                                "source": op_id,
+                                "target": decomp_id,
+                                "relationship": "decomposed_by",
+                            }
+                        )
     return nodes, edges
 
 
@@ -154,23 +160,29 @@ def extract_lowerings(filepath):
                     if op:
                         lowering_id = f"lowering::{node.name}"
                         op_id = f"op::{op}"
-                        nodes.append({
-                            "id": lowering_id,
-                            "label": node.name,
-                            "type": "lowering",
-                            "source_file": rel_path,
-                            "line": node.lineno,
-                        })
-                        nodes.append({
-                            "id": op_id,
-                            "label": op,
-                            "type": "op",
-                        })
-                        edges.append({
-                            "source": op_id,
-                            "target": lowering_id,
-                            "relationship": "lowered_by",
-                        })
+                        nodes.append(
+                            {
+                                "id": lowering_id,
+                                "label": node.name,
+                                "type": "lowering",
+                                "source_file": rel_path,
+                                "line": node.lineno,
+                            }
+                        )
+                        nodes.append(
+                            {
+                                "id": op_id,
+                                "label": op,
+                                "type": "op",
+                            }
+                        )
+                        edges.append(
+                            {
+                                "source": op_id,
+                                "target": lowering_id,
+                                "relationship": "lowered_by",
+                            }
+                        )
     return nodes, edges
 
 
@@ -195,13 +207,15 @@ def extract_custom_ops(filepath):
                     ):
                         op_name = first_arg.value
                         custom_id = f"customop::{op_name}"
-                        nodes.append({
-                            "id": custom_id,
-                            "label": op_name,
-                            "type": "custom_op",
-                            "source_file": rel_path,
-                            "line": node.lineno,
-                        })
+                        nodes.append(
+                            {
+                                "id": custom_id,
+                                "label": op_name,
+                                "type": "custom_op",
+                                "source_file": rel_path,
+                                "line": node.lineno,
+                            }
+                        )
     return nodes, edges
 
 
@@ -221,19 +235,23 @@ def extract_fallbacks(filepath):
                 for op in ops:
                     fb_id = f"fallback::{op}"
                     op_id = f"op::{op}"
-                    nodes.append({
-                        "id": fb_id,
-                        "label": f"{op} (CPU fallback)",
-                        "type": "fallback",
-                        "source_file": rel_path,
-                        "line": node.lineno,
-                    })
+                    nodes.append(
+                        {
+                            "id": fb_id,
+                            "label": f"{op} (CPU fallback)",
+                            "type": "fallback",
+                            "source_file": rel_path,
+                            "line": node.lineno,
+                        }
+                    )
                     nodes.append({"id": op_id, "label": op, "type": "op"})
-                    edges.append({
-                        "source": op_id,
-                        "target": fb_id,
-                        "relationship": "falls_back_to",
-                    })
+                    edges.append(
+                        {
+                            "source": op_id,
+                            "target": fb_id,
+                            "relationship": "falls_back_to",
+                        }
+                    )
 
         if isinstance(node, ast.FunctionDef):
             for dec in node.decorator_list:
@@ -244,21 +262,23 @@ def extract_fallbacks(filepath):
                         for op in ops:
                             fb_id = f"fallback::{op}"
                             op_id = f"op::{op}"
-                            nodes.append({
-                                "id": fb_id,
-                                "label": f"{op} (CPU fallback)",
-                                "type": "fallback",
-                                "source_file": rel_path,
-                                "line": node.lineno,
-                            })
                             nodes.append(
-                                {"id": op_id, "label": op, "type": "op"}
+                                {
+                                    "id": fb_id,
+                                    "label": f"{op} (CPU fallback)",
+                                    "type": "fallback",
+                                    "source_file": rel_path,
+                                    "line": node.lineno,
+                                }
                             )
-                            edges.append({
-                                "source": op_id,
-                                "target": fb_id,
-                                "relationship": "falls_back_to",
-                            })
+                            nodes.append({"id": op_id, "label": op, "type": "op"})
+                            edges.append(
+                                {
+                                    "source": op_id,
+                                    "target": fb_id,
+                                    "relationship": "falls_back_to",
+                                }
+                            )
 
         if isinstance(node, ast.Expr) and isinstance(node.value, ast.Call):
             call = node.value
@@ -269,19 +289,23 @@ def extract_fallbacks(filepath):
                 if op:
                     fb_id = f"fallback::{op}"
                     op_id = f"op::{op}"
-                    nodes.append({
-                        "id": fb_id,
-                        "label": f"{op} (CPU fallback)",
-                        "type": "fallback",
-                        "source_file": rel_path,
-                        "line": node.lineno,
-                    })
+                    nodes.append(
+                        {
+                            "id": fb_id,
+                            "label": f"{op} (CPU fallback)",
+                            "type": "fallback",
+                            "source_file": rel_path,
+                            "line": node.lineno,
+                        }
+                    )
                     nodes.append({"id": op_id, "label": op, "type": "op"})
-                    edges.append({
-                        "source": op_id,
-                        "target": fb_id,
-                        "relationship": "falls_back_to",
-                    })
+                    edges.append(
+                        {
+                            "source": op_id,
+                            "target": fb_id,
+                            "relationship": "falls_back_to",
+                        }
+                    )
 
     return nodes, edges
 
@@ -302,19 +326,23 @@ def extract_eager_kernels(filepath):
                 for op in ops:
                     eager_id = f"eager::{op}"
                     op_id = f"op::{op}"
-                    nodes.append({
-                        "id": eager_id,
-                        "label": f"{op} (eager)",
-                        "type": "eager_kernel",
-                        "source_file": rel_path,
-                        "line": node.lineno,
-                    })
+                    nodes.append(
+                        {
+                            "id": eager_id,
+                            "label": f"{op} (eager)",
+                            "type": "eager_kernel",
+                            "source_file": rel_path,
+                            "line": node.lineno,
+                        }
+                    )
                     nodes.append({"id": op_id, "label": op, "type": "op"})
-                    edges.append({
-                        "source": op_id,
-                        "target": eager_id,
-                        "relationship": "eager_via",
-                    })
+                    edges.append(
+                        {
+                            "source": op_id,
+                            "target": eager_id,
+                            "relationship": "eager_via",
+                        }
+                    )
 
         if isinstance(node, ast.FunctionDef):
             for dec in node.decorator_list:
@@ -328,23 +356,29 @@ def extract_eager_kernels(filepath):
                             op_name = first_arg.value
                             eager_id = f"eager::{op_name}"
                             op_id = f"op::{op_name}"
-                            nodes.append({
-                                "id": eager_id,
-                                "label": f"{op_name} (eager)",
-                                "type": "eager_kernel",
-                                "source_file": rel_path,
-                                "line": node.lineno,
-                            })
-                            nodes.append({
-                                "id": op_id,
-                                "label": op_name,
-                                "type": "op",
-                            })
-                            edges.append({
-                                "source": op_id,
-                                "target": eager_id,
-                                "relationship": "eager_via",
-                            })
+                            nodes.append(
+                                {
+                                    "id": eager_id,
+                                    "label": f"{op_name} (eager)",
+                                    "type": "eager_kernel",
+                                    "source_file": rel_path,
+                                    "line": node.lineno,
+                                }
+                            )
+                            nodes.append(
+                                {
+                                    "id": op_id,
+                                    "label": op_name,
+                                    "type": "op",
+                                }
+                            )
+                            edges.append(
+                                {
+                                    "source": op_id,
+                                    "target": eager_id,
+                                    "relationship": "eager_via",
+                                }
+                            )
 
     return nodes, edges
 
@@ -360,36 +394,40 @@ def extract_passes(filepath):
     for node in ast.walk(tree):
         if not isinstance(node, ast.ClassDef):
             continue
-        if not node.name.startswith("Custom") and not node.name.startswith(
-            "_Spyre"
-        ):
+        if not node.name.startswith("Custom") and not node.name.startswith("_Spyre"):
             continue
         if "Pass" not in node.name:
             continue
 
         group_id = f"pass::{node.name}"
-        nodes.append({
-            "id": group_id,
-            "label": node.name,
-            "type": "pass_group",
-            "source_file": rel_path,
-            "line": node.lineno,
-        })
+        nodes.append(
+            {
+                "id": group_id,
+                "label": node.name,
+                "type": "pass_group",
+                "source_file": rel_path,
+                "line": node.lineno,
+            }
+        )
 
         for base in node.bases:
             base_name = _resolve_attr(base)
             if base_name:
                 base_id = f"class::{base_name}"
-                nodes.append({
-                    "id": base_id,
-                    "label": base_name,
-                    "type": "class",
-                })
-                edges.append({
-                    "source": group_id,
-                    "target": base_id,
-                    "relationship": "inherits_from",
-                })
+                nodes.append(
+                    {
+                        "id": base_id,
+                        "label": base_name,
+                        "type": "class",
+                    }
+                )
+                edges.append(
+                    {
+                        "source": group_id,
+                        "target": base_id,
+                        "relationship": "inherits_from",
+                    }
+                )
 
         for child in ast.walk(node):
             if isinstance(child, ast.Call):
@@ -401,20 +439,22 @@ def extract_passes(filepath):
                                 name = _resolve_attr(elt)
                                 if name:
                                     fn_id = f"passfn::{name}"
-                                    nodes.append({
-                                        "id": fn_id,
-                                        "label": name,
-                                        "type": "pass_function",
-                                        "source_file": rel_path,
-                                        "line": getattr(
-                                            elt, "lineno", node.lineno
-                                        ),
-                                    })
-                                    edges.append({
-                                        "source": group_id,
-                                        "target": fn_id,
-                                        "relationship": "contains_pass",
-                                    })
+                                    nodes.append(
+                                        {
+                                            "id": fn_id,
+                                            "label": name,
+                                            "type": "pass_function",
+                                            "source_file": rel_path,
+                                            "line": getattr(elt, "lineno", node.lineno),
+                                        }
+                                    )
+                                    edges.append(
+                                        {
+                                            "source": group_id,
+                                            "target": fn_id,
+                                            "relationship": "contains_pass",
+                                        }
+                                    )
 
     return nodes, edges
 
@@ -445,28 +485,34 @@ def extract_classes(filepath):
 
         class_id = f"class::{node.name}"
         node_type = "dataclass" if is_dataclass else "class"
-        nodes.append({
-            "id": class_id,
-            "label": node.name,
-            "type": node_type,
-            "source_file": rel_path,
-            "line": node.lineno,
-        })
+        nodes.append(
+            {
+                "id": class_id,
+                "label": node.name,
+                "type": node_type,
+                "source_file": rel_path,
+                "line": node.lineno,
+            }
+        )
 
         for base in node.bases:
             base_name = _resolve_attr(base)
             if base_name and base_name not in ("object", "ABC", "abc.ABC"):
                 base_id = f"class::{base_name}"
-                nodes.append({
-                    "id": base_id,
-                    "label": base_name,
-                    "type": "class",
-                })
-                edges.append({
-                    "source": class_id,
-                    "target": base_id,
-                    "relationship": "inherits_from",
-                })
+                nodes.append(
+                    {
+                        "id": base_id,
+                        "label": base_name,
+                        "type": "class",
+                    }
+                )
+                edges.append(
+                    {
+                        "source": class_id,
+                        "target": base_id,
+                        "relationship": "inherits_from",
+                    }
+                )
 
     return nodes, edges
 
@@ -480,13 +526,15 @@ def extract_config(filepath):
     rel_path = str(filepath)
 
     module_id = f"module::{rel_path}"
-    nodes.append({
-        "id": module_id,
-        "label": "config",
-        "type": "module",
-        "source_file": rel_path,
-        "line": 1,
-    })
+    nodes.append(
+        {
+            "id": module_id,
+            "label": "config",
+            "type": "module",
+            "source_file": rel_path,
+            "line": 1,
+        }
+    )
 
     for node in ast.walk(tree):
         if not isinstance(node, ast.Call):
@@ -498,8 +546,7 @@ def extract_config(filepath):
             continue
         first_arg = node.args[0]
         if not (
-            isinstance(first_arg, ast.Constant)
-            and isinstance(first_arg.value, str)
+            isinstance(first_arg, ast.Constant) and isinstance(first_arg.value, str)
         ):
             continue
 
@@ -513,18 +560,22 @@ def extract_config(filepath):
         if default_val is not None:
             label = f"{env_name}={default_val}"
 
-        nodes.append({
-            "id": env_id,
-            "label": label,
-            "type": "env_var",
-            "source_file": rel_path,
-            "line": getattr(node, "lineno", 0),
-        })
-        edges.append({
-            "source": module_id,
-            "target": env_id,
-            "relationship": "reads_env",
-        })
+        nodes.append(
+            {
+                "id": env_id,
+                "label": label,
+                "type": "env_var",
+                "source_file": rel_path,
+                "line": getattr(node, "lineno", 0),
+            }
+        )
+        edges.append(
+            {
+                "source": module_id,
+                "target": env_id,
+                "relationship": "reads_env",
+            }
+        )
 
     return nodes, edges
 
@@ -548,13 +599,15 @@ def extract_modules(torch_spyre_root, repo_root):
 
         mod_id = f"module::{mod_name}"
         short_label = mod_name.replace("torch_spyre.", "")
-        nodes.append({
-            "id": mod_id,
-            "label": short_label,
-            "type": "module",
-            "source_file": rel_path,
-            "line": 1,
-        })
+        nodes.append(
+            {
+                "id": mod_id,
+                "label": short_label,
+                "type": "module",
+                "source_file": rel_path,
+                "line": 1,
+            }
+        )
 
         try:
             source = filepath.read_text()
@@ -574,11 +627,13 @@ def extract_modules(torch_spyre_root, repo_root):
 
             if target_mod and target_mod != mod_name:
                 target_id = f"module::{target_mod}"
-                edges.append({
-                    "source": mod_id,
-                    "target": target_id,
-                    "relationship": "imports",
-                })
+                edges.append(
+                    {
+                        "source": mod_id,
+                        "target": target_id,
+                        "relationship": "imports",
+                    }
+                )
 
     return nodes, edges
 
@@ -603,50 +658,69 @@ def extract_codegen_structures(filepath):
             continue
 
         class_id = f"class::{node.name}"
-        nodes.append({
-            "id": class_id,
-            "label": node.name,
-            "type": "dataclass",
-            "source_file": rel_path,
-            "line": node.lineno,
-        })
+        nodes.append(
+            {
+                "id": class_id,
+                "label": node.name,
+                "type": "dataclass",
+                "source_file": rel_path,
+                "line": node.lineno,
+            }
+        )
 
         for base in node.bases:
             base_name = _resolve_attr(base)
             if base_name and base_name not in ("object",):
                 base_id = f"class::{base_name}"
-                nodes.append({
-                    "id": base_id,
-                    "label": base_name,
-                    "type": "class",
-                })
-                edges.append({
-                    "source": class_id,
-                    "target": base_id,
-                    "relationship": "inherits_from",
-                })
+                nodes.append(
+                    {
+                        "id": base_id,
+                        "label": base_name,
+                        "type": "class",
+                    }
+                )
+                edges.append(
+                    {
+                        "source": class_id,
+                        "target": base_id,
+                        "relationship": "inherits_from",
+                    }
+                )
 
         known_types = {
-            "SDSCArgs", "SDSCSpec", "OpSpec", "LoopSpec",
-            "TensorArg", "FixedTiledLayout", "SpyreTensorLayout",
-            "RValue", "TensorAccess", "PointwiseOp", "ReductionOp",
-            "SymbolKind", "UnimplementedOp",
+            "SDSCArgs",
+            "SDSCSpec",
+            "OpSpec",
+            "LoopSpec",
+            "TensorArg",
+            "FixedTiledLayout",
+            "SpyreTensorLayout",
+            "RValue",
+            "TensorAccess",
+            "PointwiseOp",
+            "ReductionOp",
+            "SymbolKind",
+            "UnimplementedOp",
         }
         for item in node.body:
             if isinstance(item, ast.AnnAssign) and item.annotation:
                 ann = _resolve_attr(item.annotation)
                 if ann and ann in known_types:
                     ref_id = f"class::{ann}"
-                    nodes.append({
-                        "id": ref_id,
-                        "label": ann,
-                        "type": "dataclass",
-                    })
-                    edges.append({
-                        "source": class_id,
-                        "target": ref_id,
-                        "relationship": "contains_field",
-                    })
+                    nodes.append(
+                        {
+                            "id": ref_id,
+                            "label": ann,
+                            "type": "dataclass",
+                        }
+                    )
+                    edges.append(
+                        {
+                            "source": class_id,
+                            "target": ref_id,
+                            "relationship": "contains_field",
+                        }
+                    )
 
     return nodes, edges
 
@@ -768,8 +842,7 @@ def build_graph(torch_spyre_root):
     # --- Remove edges referencing non-existent nodes ---
     node_ids = set(seen.keys())
     valid_edges = [
-        e for e in unique_edges
-        if e["source"] in node_ids and e["target"] in node_ids
+        e for e in unique_edges if e["source"] in node_ids and e["target"] in node_ids
     ]
 
     graph = {
@@ -790,9 +863,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         root = sys.argv[1]
     else:
-        root = str(
-            Path(__file__).resolve().parents[2].parent / "torch_spyre"
-        )
+        root = str(Path(__file__).resolve().parents[2].parent / "torch_spyre")
 
     graph = build_graph(root)
     print(f"Nodes: {len(graph['nodes'])}")
