@@ -384,6 +384,10 @@ Verify the Sphinx extension still works:
 - `docs/source/index.rst` must have `explorer/index` in a toctree.
 - `.gitignore` must include `docs/source/_static/js/graph.json` (generated
   artifact, not committed).
+- Cytoscape.js loads from a pinned jsDelivr CDN in `explorer/index.md`, not a
+  vendored file. To bump the version, update both the `cytoscape@<version>`
+  URL and the `integrity` SRI hash in the same `<script>` tag. Compute the
+  hash with `openssl dgst -sha384 -binary cytoscape.min.js | openssl base64 -A`.
 
 ### 12e. Common maintenance scenarios
 

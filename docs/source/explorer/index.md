@@ -16,7 +16,7 @@ without noise from unrelated subsystems.
   <em>Click a node to see its source location and connections.</em>
 </div>
 <p id="kg-stats" style="font-size: 0.8em; color: #888; margin-top: 0.5em;"></p>
-<script src="../_static/js/cytoscape.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/cytoscape@3.30.4/dist/cytoscape.min.js" integrity="sha384-H3uzGzTfGHUAumB8+s4GEdfFwzAceN9wCCndN8AXubWKFIPuBSWKKtWDx7RhSf/z" crossorigin="anonymous"></script>
 <script src="../_static/js/knowledge_graph.js"></script>
 ```
 
