@@ -507,6 +507,8 @@ Environment Variables
        ``scratchpad_planning`` pass)
    * - ``CO_OPTIMIZING_LX_PLANNING``
      - Use the co-optimizing LX allocator strategy (default ``0``)
+   * - ``SPYRE_INDUCTOR_MEMORY_PLAN``
+     - Enable HBM / device-buffer memory planning (default ``1``)
    * - ``CHUNK_LARGE_TENSORS``
      - Run the ``chunk_large_tensors`` pass to split tensors that exceed
        the per-core span (default ``0``)
