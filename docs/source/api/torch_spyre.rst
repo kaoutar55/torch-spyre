@@ -531,7 +531,9 @@ Environment Variables
    * - ``MIN_DEFAULT_GRANULARITY``
      - Minimum default granularity for work division (default ``4``)
    * - ``SPYRE_INDUCTOR_IGNORE_HINTS``
-     - Ignore ``spyre_hint(work_div={...})`` annotations (default ``0``)
+     - Ignore ``spyre_hint`` annotations -- both ``work_div={...}``
+       work-division hints and hint-based working-set reduction (default
+       ``0``)
 
 **Device enumeration** (``torch_spyre/csrc/spyre_device_enum.cpp``):
 
