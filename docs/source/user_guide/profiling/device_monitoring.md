@@ -14,21 +14,22 @@ tool directly — `aiu-smi --help` or `aiu-smi dmon --help`.
 
 `aiu-monitor` ships as a pre-built wheel from your internal IBM package
 mirror. Ask your Spyre enablement contact for the mirror location and
-access; the steps here describe the install *pattern*, not a fixed URL.
+access. The steps here describe the install pattern. They do not pin a
+specific URL.
 
-**Wheel versions, package names, Python tags, and supported
-architectures evolve** — always browse the live package index before
-you copy an install command. The wheels are organised as
-`<arch>/{stable,dev}/<version>/<wheel>.whl`. Pick the wheel that
-matches your CPU architecture and the Python version of your venv —
-the wheel filename encodes both (e.g. `…-py312-none-linux_x86_64.whl`).
-Prefer the `stable/` channel; a `dev/` channel exists per arch for
-chasing a fix that hasn't landed in `stable/` yet.
+Wheel versions, package names, Python tags, and supported architectures
+change over time, so browse the live package index before you copy an
+install command. The wheels are organised as
+`<arch>/{stable,dev}/<version>/<wheel>.whl`. Pick the wheel that matches
+your CPU architecture and the Python version of your venv. The wheel
+filename encodes both (e.g. `ibm_aiu_monitor-...-py312-none-linux_x86_64.whl`).
+Prefer the `stable/` channel. A `dev/` channel exists per arch for
+chasing a fix that has not reached `stable/` yet.
 
 Install with the URL or local path your mirror provides, for example:
 
 ```bash
-# x86_64, Python 3.12 — torch-spyre-tagged build
+# x86_64, Python 3.12, torch-spyre-tagged build
 uv pip install <mirror>/aiu-monitor/x86_64/stable/<version>/ibm_aiu_monitor-<version>+torch.spyre-py312-none-linux_x86_64.whl
 
 uv pip install psutil
