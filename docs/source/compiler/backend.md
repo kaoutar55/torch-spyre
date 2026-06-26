@@ -138,11 +138,11 @@ SuperDSC was designed to get Torch-Spyre running quickly with an IR that closely
 DeepTools runs as an out-of-process subprocess. During scheduling, the
 generated host code calls `async_compile.sdsc(...)`
 ([`execution/async_compile.py`](https://github.com/torch-spyre/torch-spyre/blob/main/torch_spyre/execution/async_compile.py)),
-which shells out to `dxp_standalone --bundle -d <output_dir>` to turn the
+which runs `dxp_standalone --bundle -d <output_dir>` to turn the
 SuperDSC JSON into a device binary. Each kernel gets its own output
 directory created with `tempfile.mkdtemp` under `<cache_dir>/inductor-spyre`,
-so the bundles live alongside (but are distinct from) Inductor's
-content-addressed Python/Triton cache.
+so the bundles are stored separately from Inductor's content-addressed
+Python/Triton cache.
 
 ## Further Reading
 

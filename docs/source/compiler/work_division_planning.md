@@ -274,15 +274,15 @@ Pass 3 consults to skip already-divided ops.
 ### The cost equation
 
 The cost is an estimated runtime in microseconds for a matmul running
-with a given `(b, m, n, k)` split. Every term is additive — there is
-no multiplicative penalty:
+with a given `(b, m, n, k)` split. Every term is additive, with no
+multiplicative penalty:
 
 ```text
 cost(b, m, n, k) = compute + hbm + psum + shape_penalties + batch
 ```
 
-`compute`, `hbm`, and `psum` model real kernel time; `shape_penalties`
-and `batch` are small additive nudges that break ties between
+`compute`, `hbm`, and `psum` model real kernel time. `shape_penalties`
+and `batch` are small additive terms that break ties between
 otherwise-equivalent splits. A split that uses zero cores or more than
 `max_cores` scores `inf`. Lower is better.
 
@@ -329,38 +329,39 @@ non-K splits are usually cheaper for matmuls that are not
 bandwidth-bound.
 
 **Shape and tie-break penalties** are several small additive terms that
-separate compute-equivalent splits and steer away from kernel shapes
-codegen handles poorly:
+separate compute-equivalent splits and bias the planner away from kernel
+shapes the codegen handles poorly:
 
-- *M-lane underuse* — `10 µs` per log2 step when the M split exposes
-  fewer lanes than the target needed to keep the stationary weight fed.
-- *M-tile underfill* — `30 µs` per log2 step when per-core rows fall
-  below `_M_TILE_UNDERFILL_TARGET = 16`.
-- *Wide-N tile* — `25 µs` per log2 step when the per-core N tile exceeds
-  `_TARGET_N_TILE_ELEMS = 512` elements.
-- *Value-matmul / shared-projection shape* — penalties for splitting a
-  tiny output dim against a much larger reduction dim, expressed as
-  ratios rather than op names.
-- *Core underuse* — a soft `150 µs` per log2 step below the full core
-  budget, so a measured-good lower-core candidate can still win.
+- The M-lane underuse term adds `10 µs` per log2 step when the M split
+  exposes fewer M lanes than the target.
+- The M-tile underfill term adds `30 µs` per log2 step when per-core rows
+  fall below `_M_TILE_UNDERFILL_TARGET = 16`.
+- The wide-N term adds `25 µs` per log2 step when the per-core N tile
+  exceeds `_TARGET_N_TILE_ELEMS = 512` elements.
+- The value-matmul and shared-projection shape terms penalize splitting a
+  small output dim against a much larger reduction dim, using size ratios
+  rather than op names.
+- The core-underuse term adds a soft `150 µs` per log2 step below the full
+  core budget, so a lower-core split with good measured performance can
+  still win.
 
-**Batch term.** A true-bmm batch split pays a small additive overhead,
-because batch items are independent and gain nothing from being split
-across cores:
+The batch term adds a small overhead for a true-bmm batch split, because
+batch items are independent and gain nothing from being split across
+cores:
 
 ```text
 batch = log2(max(1, b)) × 10 µs        # 0 for a shared weight
 ```
 
 A shared-weight projection has no batch dim to split, so the term is
-zero. (This replaces an earlier multiplicative `b^1.4` model.)
+zero.
 
-**The constants.** Peak MAC rate per core, HBM bandwidth, cohort limit
-and exponent, PSUM coefficients, the tie-break weights, and the batch
-penalty are all defined at
-[`work_division.py:934–961`](https://github.com/torch-spyre/torch-spyre/blob/main/torch_spyre/_inductor/work_division.py#L934).
-They are tuning knobs, not user configuration. The values are fit to
-measured Spyre behaviour and re-tuned across hardware revisions.
+The constants are defined at
+[`work_division.py:934–961`](https://github.com/torch-spyre/torch-spyre/blob/main/torch_spyre/_inductor/work_division.py#L934):
+the peak MAC rate per core, HBM bandwidth, cohort limit and exponent,
+PSUM coefficients, the tie-break weights, and the batch penalty. They are
+internal tuning constants and are not user-configurable. The values are
+fit to measured Spyre behaviour and re-tuned across hardware revisions.
 :::
 
 ## Pass 3 — Work Distribution (`work_distribution`)

@@ -336,9 +336,9 @@ Tiling](https://github.com/torch-spyre/rfcs/blob/main/1358-CoarseTiling/1358-Coa
 - [`coarse_tiling_loops.md`](coarse_tiling_loops.md) — implementation
   reference for the transformation stage (Layer 1 IR pass, Layer 2
   scheduler wrapper, Layer 3 codegen tree).
-- [RFC 1358: Coarse-Tiling Loop IR — Design
-  Rationale](https://github.com/torch-spyre/rfcs/blob/main/1358-CoarseTiling/1358-CoarseTiling.md) — *why* the
-  three-layer design has the shape it does.
+- [RFC 1358: Coarse-Tiling Loop IR Design
+  Rationale](https://github.com/torch-spyre/rfcs/blob/main/1358-CoarseTiling/1358-CoarseTiling.md),
+  which explains the reasoning behind the three-layer design.
 - [`scratchpad_planning.md`](scratchpad_planning.md) — how LX scratchpad
   allocation consumes the per-tile iteration spaces produced by WSR.
 - [`work_division_planning.md`](work_division_planning.md) — how work
