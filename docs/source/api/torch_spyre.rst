@@ -478,15 +478,15 @@ Environment Variables
    * - ``TORCH_SPYRE_DOWNCAST_WARN=0``
      - Suppress int64 → int32 downcast warnings
    * - ``SPYRE_INDUCTOR_LOG=1``
-     - *Deprecated* -- use ``TORCH_LOGS='spyre.inductor:INFO'``. Enable Spyre
+     - *Deprecated*. Use ``TORCH_LOGS='spyre.inductor:INFO'``. Enables Spyre
        Inductor logging
    * - ``SPYRE_INDUCTOR_LOG_LEVEL=DEBUG``
-     - *Deprecated* -- set the level in ``TORCH_LOGS`` (e.g.
-       ``spyre.inductor:DEBUG``). Spyre Inductor log verbosity (DEBUG, INFO,
-       WARNING, ERROR)
+     - *Deprecated*. Set the level in ``TORCH_LOGS`` (e.g.
+       ``spyre.inductor:DEBUG``). Sets Spyre Inductor log verbosity (DEBUG,
+       INFO, WARNING, ERROR)
    * - ``SPYRE_LOG_FILE=path``
-     - *Deprecated* -- mapped to the top-level ``spyre`` logger file handler.
-       Redirect Spyre Inductor logs to a file
+     - *Deprecated*. Mapped to the top-level ``spyre`` logger file handler.
+       Redirects Spyre Inductor logs to a file
    * - ``TORCH_SENDNN_LOG``
      - SendNN library logging level (default: ``CRITICAL``)
    * - ``DT_DEEPRT_VERBOSE``
@@ -537,7 +537,7 @@ Environment Variables
    * - ``MIN_DEFAULT_GRANULARITY``
      - Minimum default granularity for work division (default ``4``)
    * - ``SPYRE_INDUCTOR_IGNORE_HINTS``
-     - Ignore ``spyre_hint`` annotations -- both ``work_div={...}``
+     - Ignore ``spyre_hint`` annotations: both ``work_div={...}``
        work-division hints and hint-based working-set reduction (default
        ``0``)
 

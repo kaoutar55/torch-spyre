@@ -43,11 +43,11 @@ Valid values: 1–32 (default: 32). See
 
 ## Examples
 
-Full working examples are listed in the [Examples](examples/index.md)
-page — single-op scripts (`tensor_allocate.py`, `softmax.py`, `gelu.py`,
-`mean.py`, `mul.py`, `softplus.py`, `spyre_hints.py`) plus a
+Full working examples are listed on the [Examples](examples/index.md)
+page. It has single-op scripts (`tensor_allocate.py`, `softmax.py`,
+`gelu.py`, `mean.py`, `mul.py`, `softplus.py`, `spyre_hints.py`) and a
 `distributed/` set covering the collective ops (allgather, allreduce,
-broadcast, gather, reduce, barrier). The scripts live under
+broadcast, gather, reduce, barrier). The scripts are under
 [examples/](https://github.com/torch-spyre/torch-spyre/tree/main/docs/source/user_guide/examples).
 
 ## Troubleshooting
