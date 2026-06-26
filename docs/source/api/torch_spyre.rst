@@ -478,11 +478,15 @@ Environment Variables
    * - ``TORCH_SPYRE_DOWNCAST_WARN=0``
      - Suppress int64 → int32 downcast warnings
    * - ``SPYRE_INDUCTOR_LOG=1``
-     - Enable Spyre Inductor logging
+     - *Deprecated* -- use ``TORCH_LOGS='spyre.inductor:INFO'``. Enable Spyre
+       Inductor logging
    * - ``SPYRE_INDUCTOR_LOG_LEVEL=DEBUG``
-     - Set Spyre Inductor log verbosity (DEBUG, INFO, WARNING, ERROR)
+     - *Deprecated* -- set the level in ``TORCH_LOGS`` (e.g.
+       ``spyre.inductor:DEBUG``). Spyre Inductor log verbosity (DEBUG, INFO,
+       WARNING, ERROR)
    * - ``SPYRE_LOG_FILE=path``
-     - Redirect Spyre Inductor logs to a file
+     - *Deprecated* -- mapped to the top-level ``spyre`` logger file handler.
+       Redirect Spyre Inductor logs to a file
    * - ``TORCH_SENDNN_LOG``
      - SendNN library logging level (default: ``CRITICAL``)
    * - ``DT_DEEPRT_VERBOSE``
