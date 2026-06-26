@@ -15,7 +15,7 @@ Debug-oriented variables (`TORCH_SPYRE_DEBUG`, `TORCH_COMPILE_DEBUG`,
 | `SPYRE_INDUCTOR_LOG_LEVEL=DEBUG` | Set Spyre Inductor log verbosity (`DEBUG`, `INFO`, `WARNING`, `ERROR`) |
 | `SPYRE_LOG_FILE=path/to/file.log` | Redirect Spyre Inductor log output to a file |
 | `TORCH_LOGS="+inductor"` | Verbose PyTorch Inductor logging |
-| `TORCH_SPYRE_DOWNCAST_WARN=0` | Suppress `float32 → float16` downcast warnings |
+| `TORCH_SPYRE_DOWNCAST_WARN=0` | Suppress `int64 → int32` downcast warnings |
 
 ## Compiler configuration
 

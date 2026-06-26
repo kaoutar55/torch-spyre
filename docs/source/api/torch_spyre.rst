@@ -437,11 +437,11 @@ Warnings
 
 .. function:: torch_spyre._C.get_downcast_warning() -> bool
 
-   Returns whether float32 → float16 downcast warnings are enabled.
+   Returns whether int64 → int32 downcast warnings are enabled.
 
 .. function:: torch_spyre._C.set_downcast_warning(enabled)
 
-   Enable or disable float32 → float16 downcast warnings.
+   Enable or disable int64 → int32 downcast warnings.
 
    :param bool enabled: ``True`` to enable warnings, ``False`` to suppress.
 
@@ -476,7 +476,7 @@ Environment Variables
    * - ``TORCH_SPYRE_DEBUG=1``
      - Enable C++ debug logging and ``-O0`` builds
    * - ``TORCH_SPYRE_DOWNCAST_WARN=0``
-     - Suppress float32 → float16 downcast warnings
+     - Suppress int64 → int32 downcast warnings
    * - ``SPYRE_INDUCTOR_LOG=1``
      - Enable Spyre Inductor logging
    * - ``SPYRE_INDUCTOR_LOG_LEVEL=DEBUG``
