@@ -80,6 +80,18 @@ after the outer body is spliced is also lowered. A `WhileLoop` that does
 not prove out as a tile scan is left in place for the upstream default
 path.
 
+:::{figure} ../_static/images/wsr/for-each-tile-lowering.svg
+:alt: Flow of the splice_while_loops pass proving, splicing, and coarse-tiling a for_each_tile WhileLoop, then re-running to a fixed point for nested loops
+:width: 70%
+:align: center
+
+`splice_while_loops` proves each `for_each_tile` `WhileLoop`, splices its
+body into the enclosing graph, and coarse-tiles the spliced body. The pass
+re-runs until no `WhileLoop` remains, so a nested `for_each_tile` is lowered
+once its enclosing body has been spliced. A `WhileLoop` that does not prove
+out as a tile scan is left for the upstream default path.
+:::
+
 | # | Pass | Module | Notes |
 |---|---|---|---|
 | 1 | `splice_while_loops` | [wsr/for_each_tile_lowering.py](https://github.com/torch-spyre/torch-spyre/blob/main/torch_spyre/_inductor/wsr/for_each_tile_lowering.py) | Splices each `for_each_tile` `WhileLoop` region into its enclosing graph and coarse-tiles the spliced body. Runs to a fixed point so nested `for_each_tile` loops resolve. |
