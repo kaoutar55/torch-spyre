@@ -681,6 +681,12 @@ Environment Variables
    * - ``TORCH_SPYRE_NUM_HOST_COMPUTE_STREAMS``
      - Size of the host-compute stream pool used by program correction
        (default ``4``, maximum ``8``)
+   * - ``SPYRE_HAZARD_TRACKER``
+     - Split the program-correction triple across the ``S_prep`` and
+       ``S_dev`` streams and let flex insert the cross-stream H2D-to-compute
+       edge, overlapping the two stages. Off by default, which keeps the
+       single-stream FIFO ordering. On values match flex's grammar exactly:
+       ``1``, ``true``, ``t``, ``yes``, ``y``
    * - ``SPYRE_INDUCTOR_LOG=1``
      - *Deprecated*. Use ``TORCH_LOGS='torch_spyre.inductor'``. Enables Spyre
        Inductor logging (INFO level)
@@ -739,10 +745,6 @@ Environment Variables
    * - ``BUNDLE_SYMBOLIC_ARGS``
      - Emit LPDDR5 tensor addresses as runtime symbols rather than baked
        integers (default ``1``)
-   * - ``TORCHINDUCTOR_COMPILE_THREADS``
-     - Number of Inductor compile workers. Independent backend kernels compile in
-       parallel when this is greater than ``1``; a value of ``1`` executes
-       compilation inline
    * - ``LAYOUT_SOLVER``
      - LX scratchpad layout solver strategy: ``cpsat`` (default),
        ``greedy``, ``bestfit``, ``firstfit``, ``simulated_annealing``.
@@ -839,6 +841,13 @@ Environment Variables
    * - ``SPYRE_KERNEL_CACHE``
      - Cache compiled Spyre kernels on disk and reuse them across
        invocations (default ``0``; set ``1`` to enable)
+   * - ``LIB_VERSION_FILE``
+     - Path to the Spyre components version file (ibm-deeptools and flex
+       versions), normally set in the container build. Required when
+       ``SPYRE_KERNEL_CACHE=1``: both versions are folded into the
+       kernel-cache key so output from a different compiler is never reused.
+       Compilation raises if it is unset while caching is on; set
+       ``SPYRE_KERNEL_CACHE=0`` to run without the cache
    * - ``SPYRE_NUM_CPUS``
      - Override the CPU count CP-SAT uses to size its search worker pool.
        When unset the count is derived from the cgroup v2 quota, then
@@ -859,6 +868,10 @@ Environment Variables
    * - ``FLEX_DEVICE``
      - Select the underlying flex runtime mode (``PF``, ``VF``, or
        ``MOCK``)
+   * - ``LOCAL_RANK``
+     - Per-process rank set by torchrun. Seeds the logical Spyre device
+       index when ``set_device()`` has not been called (0 when unset;
+       invalid or out-of-range values raise)
 
 **Internal:**
 
@@ -883,3 +896,7 @@ Environment Variables
      - Verbose PyTorch Inductor logging
    * - ``TORCH_COMPILE_DEBUG=1``
      - Dump Inductor debug artifacts
+   * - ``TORCHINDUCTOR_COMPILE_THREADS``
+     - Number of Inductor compile workers. Independent backend kernels
+       compile in parallel when this is greater than ``1``; a value of
+       ``1`` executes compilation inline
