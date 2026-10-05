@@ -843,10 +843,11 @@ Environment Variables
        invocations (default ``0``; set ``1`` to enable)
    * - ``LIB_VERSION_FILE``
      - Path to the Spyre components version file (ibm-deeptools and flex
-       versions), normally set in the container build. Required when
+       versions), normally set in the container build. Used when
        ``SPYRE_KERNEL_CACHE=1``: both versions are folded into the
        kernel-cache key so output from a different compiler is never reused.
-       Compilation raises if it is unset while caching is on; set
+       If it is unset while caching is on, the cache key cannot be computed, so
+       that kernel is compiled without caching and a warning is logged; set
        ``SPYRE_KERNEL_CACHE=0`` to run without the cache
    * - ``SPYRE_NUM_CPUS``
      - Override the CPU count CP-SAT uses to size its search worker pool.
