@@ -9,7 +9,7 @@ pipeline, see [Compiler Architecture](architecture.md).
 :width: 95%
 :align: center
 
-The Torch-Spyre compilation pipeline. The left end (green) is entirely upstream PyTorch — Dynamo/Autograd and Inductor. The right end (pink) is Torch-Spyre's custom Inductor backend, which generates OpSpecs, SuperDSCs, and host code. Torch-Spyre also adds configurations and extensions to the upstream stages to tailor them for the Spyre device.
+The Torch-Spyre compilation pipeline. The left end (green) is entirely upstream PyTorch: Dynamo/Autograd and Inductor. The right end (pink) is Torch-Spyre's custom Inductor backend, which generates OpSpecs, SuperDSCs, and host code. Torch-Spyre also adds configurations and extensions to the upstream stages to tailor them for the Spyre device.
 :::
 
 ## Inductor Backend Registration
@@ -18,7 +18,7 @@ At import time the Spyre backend registers three components with Inductor. Toget
 
 | Component | Module | Role |
 |---|---|---|
-| `SuperDSCScheduling` | [`scheduler.py`](https://github.com/torch-spyre/torch-spyre/blob/main/torch_spyre/_inductor/scheduler.py) | Inductor backend scheduling class. Decides how to group and order operations on the LoopLevelIR. Replaces Triton scheduling. Inductor's own node-pairwise fusion (`can_fuse_vertical`/`can_fuse_horizontal`) is permanently disabled here — real op-to-kernel grouping happens later, in `spyre_fuse_nodes` (see `CustomPostFusionPasses` below). |
+| `SuperDSCScheduling` | [`scheduler.py`](https://github.com/torch-spyre/torch-spyre/blob/main/torch_spyre/_inductor/scheduler.py) | Inductor backend scheduling class. Decides how to group and order operations on the LoopLevelIR. Replaces Triton scheduling. Inductor's own node-pairwise fusion (`can_fuse_vertical`/`can_fuse_horizontal`) is permanently disabled here. Real op-to-kernel grouping happens later, in `spyre_fuse_nodes` (see `CustomPostFusionPasses` below). |
 | `SpyrePythonWrapperCodegen` | [`wrapper.py`](https://github.com/torch-spyre/torch-spyre/blob/main/torch_spyre/_inductor/wrapper.py) | Inductor wrapper-codegen class. Generates the Python wrapper that allocates tiled buffers via `spyre_empty_with_layout()` and dispatches kernels via `async_compile.sdsc()`. |
 | `SpyreDeviceOpOverrides` | [`device/op_overrides.py`](https://github.com/torch-spyre/torch-spyre/blob/main/torch_spyre/device/op_overrides.py) | Device-specific op overrides surfaced to Inductor. |
 
@@ -104,7 +104,7 @@ out as a tile scan is left for the upstream default path.
 | 8 | `insert_bmm_padding` | [padding.py](https://github.com/torch-spyre/torch-spyre/blob/main/torch_spyre/_inductor/padding.py) | Pads y's K to a stick boundary for `mm`/`bmm`. Runs pre-stickification so the padded buffer is laid out (and restickified if the matmul reads it through a view such as a transposed `nn.Linear` weight) like any user-written `F.pad`. |
 | 9 | `split_multi_ops` | [split_multi_ops.py](https://github.com/torch-spyre/torch-spyre/blob/main/torch_spyre/_inductor/split_multi_ops.py) | Splits multi-op loop bodies (e.g. type conversion + arithmetic) into separate single-op buffers and materializes constant args as `SpyreConstantFallback`. |
 | 10 | `propagate_spyre_tensor_layouts` | [propagate_layouts.py](https://github.com/torch-spyre/torch-spyre/blob/main/torch_spyre/_inductor/propagate_layouts.py) | Stamps `FixedTiledLayout` on every `ComputedBuffer`. |
-| 11 | `reorder_nonstick_dims` | [nonstick_dim_order.py](https://github.com/torch-spyre/torch-spyre/blob/main/torch_spyre/_inductor/nonstick_dim_order.py) | Reorders the non-stick device dimensions on matmul inputs, moving the largest into the slot between the two stick dims so the widest dimension carries the most parallel work. Runs after layout propagation, before `validate_ops`. |
+| 11 | `reorder_nonstick_dims` | [nonstick_dim_order.py](https://github.com/torch-spyre/torch-spyre/blob/main/torch_spyre/_inductor/nonstick_dim_order.py) | Swaps the largest non-stick device dimension into the slot between the two stick dimensions on matmul inputs, improving matmul work division and LX co-optimization. |
 | 12 | `validate_ops` | [split_multi_ops.py](https://github.com/torch-spyre/torch-spyre/blob/main/torch_spyre/_inductor/split_multi_ops.py) | Checks that each op's inputs share the same `ElementArrangement`. Runs after layout propagation, when the `SpyreTensorLayout`s are available. |
 | 13 | `optimize_restickify_locations` | [optimize_restickify.py](https://github.com/torch-spyre/torch-spyre/blob/main/torch_spyre/_inductor/optimize_restickify.py) | Moves restickify ops to better placements before the layout is finalized. |
 | 14 | `finalize_layouts` | [insert_restickify.py](https://github.com/torch-spyre/torch-spyre/blob/main/torch_spyre/_inductor/insert_restickify.py) | Settles tile-structure decisions before any new restickify is inserted. |
@@ -247,7 +247,7 @@ We do code generation in three stages.
 2. Each Kernel is processed by [spyre_kernel.py](https://github.com/torch-spyre/torch-spyre/blob/main/torch_spyre/_inductor/spyre_kernel.py)
 to convert it to a list of `OpSpec` ([op_spec.py](https://github.com/torch-spyre/torch-spyre/blob/main/torch_spyre/_inductor/op_spec.py)).
 3. Finally, the [codegen/](https://github.com/torch-spyre/torch-spyre/blob/main/torch_spyre/_inductor/codegen/)
-package translates `OpSpec` into SuperDSC JSON — the input format
+package translates `OpSpec` into SuperDSC JSON, the input format
 for the DeepTools back-end compiler.
 
 Our intent is that the `OpSpec` will capture all important semantic information about the operation in a
