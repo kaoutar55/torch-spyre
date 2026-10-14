@@ -280,9 +280,7 @@ def extract_decompositions(filepath):
                             continue
                         seen_targets.add(target)
                         target_id = f"op::{target}"
-                        nodes.append(
-                            {"id": target_id, "label": target, "type": "op"}
-                        )
+                        nodes.append({"id": target_id, "label": target, "type": "op"})
                         edges.append(
                             {
                                 "source": decomp_id,
