@@ -263,6 +263,34 @@ stick_exprs = {
 
 ---
 
+## Non-stick dimension order
+
+Stick compatibility settles which dimension is the stick. Indirect access adds
+a second, independent layout requirement on the non-stick dimensions: the
+indexed dimension of a gather value tensor, and the scattered dimension of a
+scatter destination, must sit at device position 0. This is a hardware
+requirement of how the indexed address is formed, so it holds regardless of the
+stick choice.
+
+Three passes enforce it, in pipeline order:
+
+- `reorder_nonstick_dims` (phase 1) records the position-0 constraint for gather
+  and scatter tensors in `pinned_dims` while layouts are still being chosen, and
+  its phase 2 performance reorders respect those pins. Cases that need a copy
+  node, graph inputs and scatter mutation destinations, are deferred.
+- `reorder_nonstick_dims_mutation` runs after `insert_restickify`, once every
+  buffer has a committed `FixedTiledLayout`, and executes the deferred reorders
+  by rewriting a producer's layout or inserting a relayout copy.
+- `enforce_indirect_access_layout` runs after `insert_restickify` and checks that
+  a gather value tensor's committed dim order places the indexed dimension at
+  position 0; where it does not, it rewrites the producer's output layout or
+  inserts a `spyre.restickify` copy in the required layout.
+
+See [Layout Optimization](layout_optimization.md) for where these passes sit in
+the full pre-scheduling sequence.
+
+---
+
 ## Op spec layout
 
 For an unfused gather the scheduler produces **two** op specs:
