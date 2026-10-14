@@ -163,6 +163,16 @@ processes. The cache is content-addressed and is stored under
 directory that holds a single compile's output. The cache functions are in the
 `torch_spyre/execution/` layer alongside `async_compile` and `kernel_runner`.
 
+:::{figure} ../_static/images/kernel-cache-flow.svg
+:alt: Kernel cache flow. When SPYRE_KERNEL_CACHE is on and LIB_VERSION_FILE is set, compute_specs_hash forms the key; a hit loads the kernel while a miss compiles into a temporary directory committed with an atomic rename.
+:width: 70%
+:align: center
+
+The compiled-kernel cache flow. A hit loads the kernel without running bundle
+generation or the backend compiler; a miss compiles into a temporary directory
+inside the cache root that is committed with an atomic rename.
+:::
+
 The cache key is a SHA-256 hash computed in memory from the finalized specs,
 before any bundle is written, by `compute_specs_hash`
 ([`execution/kernel_cache.py`](https://github.com/torch-spyre/torch-spyre/blob/main/torch_spyre/execution/kernel_cache.py)).

@@ -272,6 +272,15 @@ scatter destination, must sit at device position 0. This is a hardware
 requirement of how the indexed address is formed, so it holds regardless of the
 stick choice.
 
+:::{figure} ../_static/images/indirect-access-dim-order.svg
+:alt: reorder_nonstick_dims moves the indexed dimension of a gather or scatter tensor to device position 0, ahead of the other non-stick dimensions.
+:width: 90%
+:align: center
+
+`reorder_nonstick_dims` pins the indexed dimension to device position 0,
+whatever its position in the tensor's logical dimension order.
+:::
+
 Three passes enforce it, in pipeline order:
 
 - `reorder_nonstick_dims` (phase 1) records the position-0 constraint for gather
