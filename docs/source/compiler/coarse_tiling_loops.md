@@ -103,6 +103,10 @@ level per call (see [Composing and nesting](working_set_reduction.md#composing-a
 in `working_set_reduction.md` for how a second, nested level is built by
 calling `for_each_tile` again inside `body`).
 
+See the [coarse tiling example](../user_guide/examples/coarse_tiling.py) for
+a runnable script that tiles an elementwise add with
+`spyre_hint(num_tiles_per_dim=...)`.
+
 This example is exactly what `docs/tools/capture_for_each_tile_ir.py`
 compiles. Every IR/OpSpec/`bundle.mlir` snippet below is real, captured
 output, not hand-derived. When compiler internals drift and these snippets

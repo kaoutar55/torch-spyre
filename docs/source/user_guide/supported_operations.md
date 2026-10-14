@@ -6,6 +6,13 @@ This page lists the PyTorch operations that Torch-Spyre supports via
 For details on how operations are implemented and how to add new ones,
 see [Adding Operations](../compiler/adding_operations.md).
 
+Runnable scripts for several of these operations are in the examples
+directory. See the [attention example](examples/attention.py) and the
+[flash attention example](examples/flash_attention.py) for scaled
+dot-product attention, the [RMS norm example](examples/rms_norm.py), the
+[embedding example](examples/embedding.py), and the
+[FP8 quantization example](examples/fp8.py).
+
 ## Operations Table
 
 | Operation | Eager | Compiled | Execution | Notes |
