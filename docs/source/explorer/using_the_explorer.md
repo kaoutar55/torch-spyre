@@ -81,13 +81,16 @@ the reach of a refactor before starting it.
 
 ### Configuration
 
-An environment-variable node such as `TORCH_SPYRE_DEBUG` is connected by a
+An environment-variable node such as `LX_PLANNING` is connected by a
 `reads_env` edge to each module that reads it, for example the `config` module.
 
 Pick the variable, follow `reads_env` to the module, then open the source link
 to see the accepted values and the default. For a user this is the fastest way
 to find the knob that controls a behavior; for a developer it shows which
 modules depend on a variable before renaming or retiring it.
+
+The sections below put these views to work for specific user and developer
+tasks.
 
 ## For users
 
