@@ -295,8 +295,9 @@ Three passes enforce it, in pipeline order:
   position 0; where it does not, it rewrites the producer's output layout or
   inserts a `spyre.restickify` copy in the required layout.
 
-See [Layout Optimization](layout_optimization.md) for where these passes sit in
-the full pre-scheduling sequence.
+See [Layout Optimization](layout_optimization.md) for where
+`reorder_nonstick_dims` and `reorder_nonstick_dims_mutation` sit in the full
+pre-scheduling sequence.
 
 ---
 
