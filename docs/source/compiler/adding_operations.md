@@ -10,8 +10,8 @@ in the front-end compiler.
 
 The operation-definition patterns, as a guide to which one to reach for. Each
 leaf names the file and the decorator or method it uses. The sections below
-describe each pattern in full. The cookbook also covers conventions for
-modifying existing kernels and preserving provenance, which are not
+describe each pattern in full. The cookbook also covers related conventions,
+such as modifying existing kernels and preserving provenance, that are not
 operation-definition patterns and are not shown here.
 :::
 
