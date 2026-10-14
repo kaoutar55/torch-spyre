@@ -17,6 +17,7 @@ This script computes a SwiGLU MLP, silu(x @ gate) * (x @ up) @ down, and
 compares the compiled Spyre result against a CPU reference. It requires a
 Spyre device to run.
 """
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F

@@ -7,11 +7,11 @@ For details on how operations are implemented and how to add new ones,
 see [Adding Operations](../compiler/adding_operations.md).
 
 Runnable scripts for several of these operations are in the examples
-directory. See the [attention example](examples/attention.py) and the
-[flash attention example](examples/flash_attention.py) for scaled
-dot-product attention, the [RMS norm example](examples/rms_norm.py), the
-[embedding example](examples/embedding.py), and the
-[FP8 quantization example](examples/fp8.py).
+directory. See the [attention example](https://github.com/torch-spyre/torch-spyre/blob/main/docs/source/user_guide/examples/attention.py) and the
+[flash attention example](https://github.com/torch-spyre/torch-spyre/blob/main/docs/source/user_guide/examples/flash_attention.py) for scaled
+dot-product attention, the [RMS norm example](https://github.com/torch-spyre/torch-spyre/blob/main/docs/source/user_guide/examples/rms_norm.py), the
+[embedding example](https://github.com/torch-spyre/torch-spyre/blob/main/docs/source/user_guide/examples/embedding.py), and the
+[FP8 quantization example](https://github.com/torch-spyre/torch-spyre/blob/main/docs/source/user_guide/examples/fp8.py).
 
 ## Operations Table
 

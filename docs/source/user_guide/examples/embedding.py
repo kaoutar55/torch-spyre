@@ -17,6 +17,7 @@ This script looks up rows of an embedding table with F.embedding, including a
 padding index whose row is zeroed, and compares the compiled Spyre result
 against a CPU reference. It requires a Spyre device to run.
 """
+
 import torch
 import torch.nn.functional as F
 

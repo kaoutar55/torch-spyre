@@ -19,6 +19,7 @@ register_spyre_lowering, and compiles a function that calls it on a permuted
 input. It compares the compiled Spyre result against a CPU reference. It
 requires a Spyre device to run.
 """
+
 import torch
 
 from torch_spyre._inductor.lowering import (

@@ -19,6 +19,7 @@ scalar epsilon and feature count are broadcast per column. It compares the
 compiled Spyre result against a CPU reference. It requires a Spyre device to
 run.
 """
+
 import torch
 
 DEVICE = torch.device("spyre")
@@ -54,9 +55,7 @@ d_device = d.to(DEVICE)
 
 # Compute on the device in compiled mode and bring the result back to the host
 compiled = torch.compile(rms_norm)
-compiled_result = compiled(
-    activation_device, weight_device, eps_device, d_device
-).cpu()
+compiled_result = compiled(activation_device, weight_device, eps_device, d_device).cpu()
 
 # Print the results and compare them
 print(f"CPU result\n{cpu_result}")

@@ -18,6 +18,7 @@ moves an RMSNorm input to the device under that layout, so the sequence
 dimension becomes the device stick. It compares the compiled Spyre result
 against a CPU reference. It requires a Spyre device to run.
 """
+
 import torch
 
 from torch_spyre._C import SpyreTensorLayout

@@ -19,6 +19,7 @@ compile-only: the eager matmul path is unsupported here because mm on Spyre
 tensors needs the hardware session that torch.compile sets up. It requires a
 Spyre device to run.
 """
+
 import torch
 
 DEVICE = torch.device("spyre")

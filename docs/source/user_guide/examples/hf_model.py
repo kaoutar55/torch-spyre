@@ -18,6 +18,7 @@ AutoSpyreModelForCausalLM, tokenizes a prompt, generates a short continuation
 on the device, and decodes it. It requires a Spyre device and the hf-adapters
 package to run.
 """
+
 from hf_adapters import AutoSpyreModelForCausalLM
 from transformers import AutoTokenizer
 

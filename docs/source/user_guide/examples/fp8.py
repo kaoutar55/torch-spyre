@@ -18,6 +18,7 @@ then back to FP16 with torch.ops.spyre.dequantize_fp8_with_scale using an
 identity scale, and compares the compiled Spyre result against a CPU reference
 that clamps, casts to FP8, and casts back. It requires a Spyre device to run.
 """
+
 import torch
 
 from torch_spyre._inductor.constants import FP8_E4M3FN_MAX, FP8_E4M3FN_MIN

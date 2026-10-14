@@ -18,6 +18,7 @@ denominator so the softmax never materializes the full score matrix. It
 compares the compiled Spyre result against PyTorch's native scaled
 dot-product attention on CPU. It requires a Spyre device to run.
 """
+
 import math
 
 import torch

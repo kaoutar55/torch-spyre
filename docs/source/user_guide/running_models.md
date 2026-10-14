@@ -6,7 +6,7 @@ using `torch.compile` and the Torch-Spyre backend.
 To run a stock HuggingFace Transformers checkpoint without writing your own
 model code, see [Running HuggingFace models on Spyre](running_hf_models.md),
 which covers the [hf-adapters](https://github.com/torch-spyre/hf-adapters)
-project. See the [HuggingFace model example](examples/hf_model.py) for a
+project. See the [HuggingFace model example](https://github.com/torch-spyre/torch-spyre/blob/main/docs/source/user_guide/examples/hf_model.py) for a
 short end-to-end generation script.
 
 ## Using `torch.compile`
@@ -27,7 +27,7 @@ x = torch.rand(1, 3, 224, 224, dtype=torch.float16).to(DEVICE)
 output = compiled_model(x)
 ```
 
-See the [MLP example](examples/mlp.py) for a compiled SwiGLU feed-forward
+See the [MLP example](https://github.com/torch-spyre/torch-spyre/blob/main/docs/source/user_guide/examples/mlp.py) for a compiled SwiGLU feed-forward
 block.
 
 ## Supported Operations

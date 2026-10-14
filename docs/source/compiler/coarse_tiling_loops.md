@@ -103,7 +103,7 @@ level per call (see [Composing and nesting](working_set_reduction.md#composing-a
 in `working_set_reduction.md` for how a second, nested level is built by
 calling `for_each_tile` again inside `body`).
 
-See the [coarse tiling example](../user_guide/examples/coarse_tiling.py) for
+See the [coarse tiling example](https://github.com/torch-spyre/torch-spyre/blob/main/docs/source/user_guide/examples/coarse_tiling.py) for
 a runnable script that tiles an elementwise add with
 `spyre_hint(num_tiles_per_dim=...)`.
 
