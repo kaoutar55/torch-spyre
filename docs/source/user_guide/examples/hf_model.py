@@ -22,7 +22,7 @@ package to run.
 from hf_adapters import AutoSpyreModelForCausalLM
 from transformers import AutoTokenizer
 
-model_id = "ibm-granite/granite-3.3-2b-instruct"
+model_id = "ibm-granite/granite-3.3-8b-instruct"
 
 # AutoSpyreModelForCausalLM selects the matching adapter, prepares the model
 # for Spyre, and moves it to the device. The tokenizer is the stock HF one.

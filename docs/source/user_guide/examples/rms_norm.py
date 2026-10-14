@@ -15,9 +15,8 @@
 
 This script normalizes along dimension 0 to respect the reduction-dimension
 restriction, so the activation and the weight are laid out as [D, T] and the
-scalar epsilon and feature count are broadcast per column. It compares the
-compiled Spyre result against a CPU reference. It requires a Spyre device to
-run.
+scalar epsilon is broadcast per column. It compares the compiled Spyre result
+against a CPU reference. It requires a Spyre device to run.
 """
 
 import torch
@@ -30,32 +29,30 @@ T = 128
 D = 256
 
 # Build inputs on CPU. The weight is expanded to [D, T] to work around the
-# on-device broadcast limitation, and eps and D are broadcast scalars per column.
+# on-device broadcast limitation, and eps is a broadcast scalar per column.
 activation = torch.randn(D, T, dtype=torch.float16)
 weight = torch.randn(D, dtype=torch.float16)
 weight_expanded = weight.reshape(D, 1).expand(D, T).contiguous()
 eps = torch.full([T], F16_EPS, dtype=torch.float16)
-d = torch.full([T], D, dtype=torch.float16)
 
 
-def rms_norm(x, weight, eps, d):
+def rms_norm(x, weight, eps):
     x_sq = x * x
     x_mean_sq = x_sq.mean(dim=0)
     return x * torch.rsqrt(x_mean_sq + eps)[None, :] * weight
 
 
 # Compute the reference on CPU
-cpu_result = rms_norm(activation, weight_expanded, eps, d)
+cpu_result = rms_norm(activation, weight_expanded, eps)
 
 # Send inputs to device
 activation_device = activation.to(DEVICE)
 weight_device = weight_expanded.to(DEVICE)
 eps_device = eps.to(DEVICE)
-d_device = d.to(DEVICE)
 
 # Compute on the device in compiled mode and bring the result back to the host
 compiled = torch.compile(rms_norm)
-compiled_result = compiled(activation_device, weight_device, eps_device, d_device).cpu()
+compiled_result = compiled(activation_device, weight_device, eps_device).cpu()
 
 # Print the results and compare them
 print(f"CPU result\n{cpu_result}")
