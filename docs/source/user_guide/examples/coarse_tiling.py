@@ -11,51 +11,55 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Coarse tiling with a Spyre compiler hint.
+"""Coarse tiling with for_each_tile.
 
-This script tiles a simple elementwise add across named dimensions using
-spyre_hint(num_tiles_per_dim=...), which splits dimension A of a 256x256 add
-into four tiles. The named dimensions are declared and attached to the device
-tensors before compilation. It requires a Spyre device to run.
+This script expresses an explicit tiled loop with for_each_tile. It splits
+dimension 0 of a 256x256 computation into tiles of 64 rows, runs the body once
+per tile to compute (a + b) * c on that tile, and lays each result tile back
+into the output. It compares the compiled Spyre result against a CPU reference.
+It requires a Spyre device to run.
 """
 
 import torch
 
-from torch_spyre._inductor import spyre_hint
-from torch_spyre._inductor.wsr import propagate_named_dims as named_dims
+from torch_spyre._inductor.wsr.for_each_tile import for_each_tile
 
 DEVICE = torch.device("spyre")
 torch.manual_seed(0xAFFE)
 
 # Build inputs on CPU
-x = torch.randn(256, 256, dtype=torch.float16)
-y = torch.randn(256, 256, dtype=torch.float16)
-
-# Compute the reference on CPU
-cpu_result = x + y
+a = torch.randn(256, 256, dtype=torch.float16)
+b = torch.randn(256, 256, dtype=torch.float16)
+c = torch.randn(256, 256, dtype=torch.float16)
 
 
-def add_tiled(a, b):
-    with spyre_hint(num_tiles_per_dim={"A": 4}):
-        with spyre_hint(expected_named_dims=["A", "B"]):
-            return a + b
+def fn(a, b, c):
+    def body(_, tiles):
+        a_tile, b_tile, c_tile = tiles
+        y_tile = a_tile + b_tile
+        return None, y_tile * c_tile
+
+    # Tile dimension 0 into 64-row steps; out_dim=0 lays each step's tile back
+    # into the full-size output. init=None makes this a map with no carry.
+    _, z = for_each_tile(body, (a, b, c), dims=(0, 0, 0), tile_size=64, out_dim=0)
+    return z
 
 
-# Declare the named dimensions and attach them to the device tensors
-named_dims.reset()
-named_dims.declare_tensor_dim("A", 256)
-named_dims.declare_tensor_dim("B", 256)
-x_device = x.to(DEVICE)
-y_device = y.to(DEVICE)
-named_dims.name_tensor_dims(x_device, ["A", "B"])
-named_dims.name_tensor_dims(y_device, ["A", "B"])
+# Compute the reference on CPU as the equivalent untiled expression
+cpu_result = (a + b) * c
+
+# Send inputs to device
+a_device = a.to(DEVICE)
+b_device = b.to(DEVICE)
+c_device = c.to(DEVICE)
 
 # Compute on the device in compiled mode and bring the result back to the host
-compiled = torch.compile(add_tiled)
-compiled_result = compiled(x_device, y_device).cpu()
+compiled = torch.compile(fn)
+compiled_result = compiled(a_device, b_device, c_device).cpu()
 
 # Print the results and compare them
 print(f"CPU result\n{cpu_result}")
 print(f"Spyre Compiled result\n{compiled_result}")
+torch.testing.assert_close(compiled_result, cpu_result, atol=0.1, rtol=0.1)
 cpu_delta = torch.abs(compiled_result - cpu_result).max()
 print(f"Max delta Compiled Spyre vs. CPU: {cpu_delta}")

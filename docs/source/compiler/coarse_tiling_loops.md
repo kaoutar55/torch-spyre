@@ -102,8 +102,8 @@ in `working_set_reduction.md` for how a second, nested level is built by
 calling `for_each_tile` again inside `body`).
 
 See the [coarse tiling example](https://github.com/torch-spyre/torch-spyre/blob/main/docs/source/user_guide/examples/coarse_tiling.py) for
-a runnable script that tiles an elementwise add with
-`spyre_hint(num_tiles_per_dim=...)`.
+a runnable script that tiles an elementwise computation with
+`for_each_tile`.
 
 This example is exactly what `docs/tools/capture_for_each_tile_ir.py`
 compiles. Every IR/OpSpec/`bundle.mlir` snippet below is real, captured

@@ -21,7 +21,7 @@ common Torch-Spyre use cases.
 | `attention.py` | Scaled dot-product attention from matmul and softmax (compile-only) |
 | `mlp.py` | SwiGLU feed-forward block on Spyre |
 | `rms_norm.py` | RMS normalization along the reduction dimension |
-| `coarse_tiling.py` | Tiling an elementwise add with a Spyre compiler hint |
+| `coarse_tiling.py` | Tiling an elementwise computation with `for_each_tile` |
 | `embedding.py` | Embedding lookup with a padding index |
 | `fp8.py` | FP8 channel-wise quantization roundtrip |
 | `tensor_layout.py` | Moving a tensor to Spyre with an explicit on-device layout |
