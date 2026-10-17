@@ -13,9 +13,11 @@
 # limitations under the License.
 """Embedding lookup on Spyre.
 
-This script looks up rows of an embedding table with F.embedding, including a
-padding index whose row is zeroed, and compares the compiled Spyre result
-against a CPU reference. It requires a Spyre device to run.
+This script looks up rows of an embedding table with F.embedding. The table's
+padding row is zeroed the way nn.Embedding zeroes it at construction, and the
+input references that row, so the lookup returns zeros there. It compares the
+compiled Spyre result against a CPU reference. It requires a Spyre device to
+run.
 """
 
 import torch
@@ -26,9 +28,11 @@ torch.manual_seed(0xAFFE)
 
 padding_idx = 0
 
-# Build inputs on CPU
-indices = torch.tensor([[1, 2, 4, 5], [4, 3, 2, 9]], dtype=torch.int64)
+# Build inputs on CPU. Zero the padding row in the table, as nn.Embedding does
+# when it is built with padding_idx, and reference it from the input.
+indices = torch.tensor([[1, 2, 0, 5], [4, 0, 2, 9]], dtype=torch.int64)
 weight = torch.rand(10, 3, dtype=torch.float16)
+weight[padding_idx] = 0.0
 
 
 def embedding(indices, weight):

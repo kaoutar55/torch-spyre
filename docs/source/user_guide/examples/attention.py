@@ -34,6 +34,8 @@ D = 128  # head dimension
 q = torch.randn(H * Q, D, dtype=torch.float16)
 k = torch.randn(L, D, dtype=torch.float16)
 v = torch.randn(L, D, dtype=torch.float16)
+# The softmax scale is one scalar, repeated into a per-column vector so it
+# broadcasts against the qk scores without a scalar-tensor broadcast.
 sm_scale = torch.tensor(1 / (D**0.5), dtype=torch.float16).repeat(k.shape[0])
 
 

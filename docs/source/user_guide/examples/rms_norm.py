@@ -24,7 +24,7 @@ import torch
 DEVICE = torch.device("spyre")
 torch.manual_seed(0xAFFE)
 
-F16_EPS = 1e-6
+EPS = 1e-6
 T = 128
 D = 256
 
@@ -33,7 +33,7 @@ D = 256
 activation = torch.randn(D, T, dtype=torch.float16)
 weight = torch.randn(D, dtype=torch.float16)
 weight_expanded = weight.reshape(D, 1).expand(D, T).contiguous()
-eps = torch.full([T], F16_EPS, dtype=torch.float16)
+eps = torch.full([T], EPS, dtype=torch.float16)
 
 
 def rms_norm(x, weight, eps):
