@@ -55,7 +55,7 @@ dot-product attention, the [RMS norm example](https://github.com/torch-spyre/tor
 | `torch.tanh` | Y | Y | Spyre | |
 | `torch.floor` | Y | Y | Spyre | |
 | `torch.ceil` | Y | Y | Spyre | Custom decomposition |
-| `torch.trunc` | Y | Y | Spyre | Custom lowering `floor(abs(x)) * clip(x, -1, 1)`; the device has no native trunc op |
+| `torch.trunc` | | Y | Spyre | Compiled only; custom lowering `floor(abs(x)) * clip(x, -1, 1)`, since the device has no native trunc op |
 | `torch.sign` | Y | Y | Spyre | Custom decomposition |
 | `torch.logical_not` | Y | Y | Spyre | Custom decomposition |
 | `torch.bitwise_not` | Y | Y | Spyre | Custom decomposition |
